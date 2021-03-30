@@ -38,6 +38,7 @@
   <ItemGroup>
      <Compile Include="Assets\ExampleAssets\Scripts\AnchorCreator.cs" />
      <Compile Include="Assets\ExampleAssets\Scripts\ARFeatheredPlaneMeshVisualizer.cs" />
+     <Compile Include="Assets\Scripts\HandPositionEstimator.cs" />
      <None Include="Assets\ExampleAssets\Shaders\FeatheredPlaneShader.shader" />
     <Reference Include="UnityEngine">
         <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.2f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
@@ -698,13 +699,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="EnoxSoftware.OpenCVForUnity.csproj">
-      <Project>{30458e32-15b9-3186-841a-ba16ad235c40}</Project>
-      <Name>EnoxSoftware.OpenCVForUnity</Name>
-    </ProjectReference>
     <ProjectReference Include="EnoxSoftware.OpenCVForUnity.Editor.csproj">
       <Project>{97a55c04-0948-e52b-812e-833640424dd8}</Project>
       <Name>EnoxSoftware.OpenCVForUnity.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="EnoxSoftware.OpenCVForUnity.csproj">
+      <Project>{30458e32-15b9-3186-841a-ba16ad235c40}</Project>
+      <Name>EnoxSoftware.OpenCVForUnity</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
