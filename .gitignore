@@ -4,3 +4,6 @@
 /[Bb]uilds
 
 ./gradle
+
+/Assets/ExampleAssets
+/Assets/OpenCVForUnity
