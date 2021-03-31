@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.UnityUtils.Helper;
@@ -9,56 +11,99 @@ using OpenCVForUnity.UnityUtils;
 [RequireComponent (typeof(WebCamTextureToMatHelper))]
 public class HandPositionEstimator : MonoBehaviour
 {
-    private WebCamTextureToMatHelper webCamTextureToMatHelper;
+    private WebCamTextureToMatHelper webcamTextureToMatHelper;
 
-    private Texture2D texture;
+    public RawImage previewImage;
+    private Texture2D previewTexture;
+    private Point clickedPoint = null;
 
     void Start()
     {
-        webCamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>();
-        webCamTextureToMatHelper.Initialize();
+        webcamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>();
+        webcamTextureToMatHelper.Initialize();
     }
 
     public void OnWebCamTextureToMatHelperInitialized()
     {
-        Mat webCamTextureMat = webCamTextureToMatHelper.GetMat();
+        Mat webcamTextureMat = webcamTextureToMatHelper.GetMat();
 
-        texture = new Texture2D(webCamTextureMat.cols(), webCamTextureMat.rows(), TextureFormat.RGBA32, false);
-        Utils.fastMatToTexture2D(webCamTextureMat, texture);
+        int webcamWidth = webcamTextureMat.width();
+        int webcamHeight = webcamTextureMat.height();
 
-        gameObject.GetComponent<Renderer>().material.mainTexture = texture;
+        previewTexture = new Texture2D(webcamWidth, webcamHeight, TextureFormat.RGBA32, false);
+        previewImage.material.mainTexture = previewTexture;
 
-        gameObject.transform.localScale = new Vector3(webCamTextureMat.cols(), webCamTextureMat.rows(), 1);
-
-        float width = webCamTextureMat.width();
-        float height = webCamTextureMat.height();
-
-        // TODO: This part most definitely needs to be reworked to support perspective camera.
-        float widthScale = (float)Screen.width / width;
-        float heightScale = (float)Screen.height / height;
-        if (widthScale < heightScale) {
-            Camera.main.orthographicSize = (width * (float)Screen.height / (float)Screen.width) / 2;
-        } else {
-            Camera.main.orthographicSize = height / 2;
+        if (((float)Screen.width / Screen.height) > ((float)webcamWidth / webcamHeight))  // Stretch preview image to full width (crop height)
+        {
+            previewImage.rectTransform.sizeDelta = new Vector2(
+                Screen.width,
+                (float)webcamHeight / (float)webcamWidth * Screen.width
+            );
         }
+        else  // Stretch preview image to full height (crop width)
+        {
+            previewImage.rectTransform.sizeDelta = new Vector2(
+                (float)webcamWidth / (float)webcamHeight * Screen.height,
+                Screen.height
+            );
+        }
+
+        Utils.fastMatToTexture2D(webcamTextureMat, previewTexture);
     }
 
     public void OnWebCamTextureToMatHelperDisposed ()
     {
-        if (texture != null) {
-            Texture2D.Destroy(texture);
-            texture = null;
+        if (previewTexture != null)
+        {
+            Texture2D.Destroy(previewTexture);
+            previewTexture = null;
         }
     }
 
     void Update()
     {
-        if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame()) {
-            // Get an rgba material from the current camera frame.
-            Mat rgbaMat = webCamTextureToMatHelper.GetMat();
+        UpdateClickedPoint();
 
-            // Update Quad renderer texture with the processed rgba material.
-            Utils.fastMatToTexture2D(rgbaMat, texture);
+        if (!webcamTextureToMatHelper.IsPlaying() || !webcamTextureToMatHelper.DidUpdateThisFrame()) {
+            return;
+        }
+
+        // Get an rgba material from the current camera frame.
+        Mat frameMat = webcamTextureToMatHelper.GetMat();
+
+        // Debug.Log($"{frameMat.rows()} {frameMat.cols()}");
+
+        // TODO: Sample color from the clicked point.
+        if (clickedPoint != null)
+        {
+            Debug.Log(clickedPoint);
+            clickedPoint = null;
+        }
+
+
+        // Update Quad renderer texture with the processed frame material.
+        Utils.fastMatToTexture2D(frameMat, previewTexture);
+    }
+
+    private void UpdateClickedPoint()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            if (Input.touchCount == 1)
+            {
+                Touch t = Input.GetTouch(0);
+                if (t.phase == TouchPhase.Ended && !EventSystem.current.IsPointerOverGameObject(t.fingerId))
+                {
+                    clickedPoint = new Point(t.position.x, t.position.y);
+                }
+            }
+        }
+        else
+        {
+            if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
+            {
+                clickedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
+            }
         }
     }
 }
