@@ -11,11 +11,14 @@ using OpenCVForUnity.UnityUtils;
 [RequireComponent (typeof(WebCamTextureToMatHelper))]
 public class HandPositionEstimator : MonoBehaviour
 {
+    public Image previewImage;
+    public Image colorPickerImage;
+
     private WebCamTextureToMatHelper webcamTextureToMatHelper;
 
-    public RawImage previewImage;
     private Texture2D previewTexture;
-    private Point clickedPoint = null;
+
+    private Point selectedPoint = null;
 
     void Start()
     {
@@ -62,48 +65,53 @@ public class HandPositionEstimator : MonoBehaviour
 
     void Update()
     {
-        UpdateClickedPoint();
+        UpdateSelectedPoint();
 
-        if (!webcamTextureToMatHelper.IsPlaying() || !webcamTextureToMatHelper.DidUpdateThisFrame()) {
+        if (selectedPoint != null) {
+            colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
+        } else {
+            colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
+        }
+
+        if (!webcamTextureToMatHelper.IsPlaying() || !webcamTextureToMatHelper.DidUpdateThisFrame())
+        {
             return;
         }
 
         // Get an rgba material from the current camera frame.
         Mat frameMat = webcamTextureToMatHelper.GetMat();
 
-        // Debug.Log($"{frameMat.rows()} {frameMat.cols()}");
-
-        // TODO: Sample color from the clicked point.
-        if (clickedPoint != null)
-        {
-            Debug.Log(clickedPoint);
-            clickedPoint = null;
-        }
 
 
         // Update Quad renderer texture with the processed frame material.
         Utils.fastMatToTexture2D(frameMat, previewTexture);
     }
 
-    private void UpdateClickedPoint()
+    private void UpdateSelectedPoint()
     {
+        selectedPoint = null;
+
         if (Application.platform == RuntimePlatform.Android)
         {
             if (Input.touchCount == 1)
             {
                 Touch t = Input.GetTouch(0);
-                if (t.phase == TouchPhase.Ended && !EventSystem.current.IsPointerOverGameObject(t.fingerId))
-                {
-                    clickedPoint = new Point(t.position.x, t.position.y);
-                }
+                selectedPoint = new Point(t.position.x, t.position.y);
+                // if (t.phase == TouchPhase.Ended && !EventSystem.current.IsPointerOverGameObject(t.fingerId))
+                // {
+                //     clickedPoint = new Point(t.position.x, t.position.y);
+                // }
             }
         }
         else
         {
-            if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
-            {
-                clickedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
+            if (Input.GetMouseButton(0)) {
+                selectedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
             }
+            // if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
+            // {
+            //     clickedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
+            // }
         }
     }
 }
