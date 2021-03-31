@@ -11,7 +11,7 @@ using OpenCVForUnity.UnityUtils;
 [RequireComponent (typeof(WebCamTextureToMatHelper))]
 public class HandPositionEstimator : MonoBehaviour
 {
-    public Image previewImage;
+    public RawImage previewImage;
     public Image colorPickerImage;
 
     private WebCamTextureToMatHelper webcamTextureToMatHelper;
@@ -23,35 +23,21 @@ public class HandPositionEstimator : MonoBehaviour
     void Start()
     {
         webcamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>();
+
+        if (Application.platform == RuntimePlatform.Android) {
+            webcamTextureToMatHelper.avoidAndroidFrontCameraLowLightIssue = true;
+        }
+
         webcamTextureToMatHelper.Initialize();
     }
 
     public void OnWebCamTextureToMatHelperInitialized()
     {
         Mat webcamTextureMat = webcamTextureToMatHelper.GetMat();
-
-        int webcamWidth = webcamTextureMat.width();
-        int webcamHeight = webcamTextureMat.height();
-
-        previewTexture = new Texture2D(webcamWidth, webcamHeight, TextureFormat.RGBA32, false);
-        previewImage.material.mainTexture = previewTexture;
-
-        if (((float)Screen.width / Screen.height) > ((float)webcamWidth / webcamHeight))  // Stretch preview image to full width (crop height)
-        {
-            previewImage.rectTransform.sizeDelta = new Vector2(
-                Screen.width,
-                (float)webcamHeight / (float)webcamWidth * Screen.width
-            );
-        }
-        else  // Stretch preview image to full height (crop width)
-        {
-            previewImage.rectTransform.sizeDelta = new Vector2(
-                (float)webcamWidth / (float)webcamHeight * Screen.height,
-                Screen.height
-            );
-        }
-
+        previewTexture = new Texture2D(webcamTextureMat.width(), webcamTextureMat.height(), TextureFormat.RGBA32, false);
         Utils.fastMatToTexture2D(webcamTextureMat, previewTexture);
+
+        previewImage.texture = previewTexture;
     }
 
     public void OnWebCamTextureToMatHelperDisposed ()
@@ -67,7 +53,9 @@ public class HandPositionEstimator : MonoBehaviour
     {
         UpdateSelectedPoint();
 
+        // Align color picker image with the selected point.
         if (selectedPoint != null) {
+            Debug.Log(selectedPoint);
             colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
         } else {
             colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
@@ -81,6 +69,7 @@ public class HandPositionEstimator : MonoBehaviour
         // Get an rgba material from the current camera frame.
         Mat frameMat = webcamTextureToMatHelper.GetMat();
 
+        Imgproc.circle(frameMat, new Point(100, 200), 50, new Scalar(255, 0, 0, 255), 3);
 
 
         // Update Quad renderer texture with the processed frame material.
@@ -114,4 +103,8 @@ public class HandPositionEstimator : MonoBehaviour
             // }
         }
     }
+
+    // private Point GetTexturePointFromScreenPoint(Point screenPoint) {
+
+    // }
 }
