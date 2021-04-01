@@ -11,10 +11,11 @@ using OpenCVForUnity.UnityUtils;
 [RequireComponent (typeof(WebCamTextureToMatHelper))]
 public class HandPositionEstimator : MonoBehaviour
 {
-    public RawImage previewImage;
-    public Image colorPickerImage;
-
     private WebCamTextureToMatHelper webcamTextureToMatHelper;
+
+    private GameObject previewCanvas;
+    private RawImage previewImage;
+    private Image colorPickerImage;
 
     private Texture2D previewTexture;
 
@@ -23,6 +24,10 @@ public class HandPositionEstimator : MonoBehaviour
     void Start()
     {
         webcamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>();
+
+        previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
+        previewImage = previewCanvas.transform.Find("PreviewImage").GetComponent<RawImage>();
+        colorPickerImage = previewCanvas.transform.Find("ColorPickerImage").GetComponent<Image>();
 
         if (Application.platform == RuntimePlatform.Android) {
             webcamTextureToMatHelper.avoidAndroidFrontCameraLowLightIssue = true;
@@ -33,9 +38,9 @@ public class HandPositionEstimator : MonoBehaviour
 
     public void OnWebCamTextureToMatHelperInitialized()
     {
-        Mat webcamTextureMat = webcamTextureToMatHelper.GetMat();
-        previewTexture = new Texture2D(webcamTextureMat.width(), webcamTextureMat.height(), TextureFormat.RGBA32, false);
-        Utils.fastMatToTexture2D(webcamTextureMat, previewTexture);
+        Mat frameMat = webcamTextureToMatHelper.GetMat();
+        previewTexture = new Texture2D(frameMat.width(), frameMat.height(), TextureFormat.RGBA32, false);
+        Utils.fastMatToTexture2D(frameMat, previewTexture);
 
         previewImage.texture = previewTexture;
     }
@@ -55,8 +60,7 @@ public class HandPositionEstimator : MonoBehaviour
 
         // Align color picker image with the selected point.
         if (selectedPoint != null) {
-            Debug.Log(selectedPoint);
-            colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
+            // colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
         } else {
             colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
         }
@@ -69,7 +73,12 @@ public class HandPositionEstimator : MonoBehaviour
         // Get an rgba material from the current camera frame.
         Mat frameMat = webcamTextureToMatHelper.GetMat();
 
-        Imgproc.circle(frameMat, new Point(100, 200), 50, new Scalar(255, 0, 0, 255), 3);
+        if (selectedPoint != null) {
+            var frameSelectedPoint = GetFramePointFromScreenPoint(selectedPoint, frameMat);
+
+            Imgproc.circle(frameMat, frameSelectedPoint, 50, new Scalar(255, 0, 0, 255), 3);
+            // Imgproc.circle(frameMat, new Point(100, 200), 50, new Scalar(255, 0, 0, 255), 3);
+        }
 
 
         // Update Quad renderer texture with the processed frame material.
@@ -104,7 +113,25 @@ public class HandPositionEstimator : MonoBehaviour
         }
     }
 
-    // private Point GetTexturePointFromScreenPoint(Point screenPoint) {
+    private Point GetFramePointFromScreenPoint(Point screenPoint, Mat frameMat) {
+        var canvasRect = previewCanvas.GetComponent<RectTransform>();
 
-    // }
+        float canvasScale = canvasRect.localScale.x;
+        float canvasWidth = canvasRect.sizeDelta.x;
+        float canvasHeight = canvasRect.sizeDelta.y;
+
+        float frameWidth = frameMat.width();
+        float frameHeight = frameMat.height();
+
+        var canvasPoint = screenPoint / canvasScale;
+        var offsetPoint = new Point(
+            canvasPoint.x + (frameWidth - canvasWidth) / 2,
+            canvasPoint.y + (frameHeight - canvasHeight) / 2
+        );
+
+        return new Point(
+            offsetPoint.x,
+            frameHeight - offsetPoint.y
+        );
+    }
 }
