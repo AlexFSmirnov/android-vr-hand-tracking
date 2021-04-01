@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/OpenCV-HandTracking-test-1.unity
-    guid: 6af71f58c0273054196db88c0a66552b
+    path: Assets/Scenes/AR+OpenCV-test-1.unity
+    guid: fc4c3f083c11f4e4da12bc5379c2c690
   m_configObjects:
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: 744b813df90924c169af73489b8325de,
       type: 2}

@@ -1,12 +1,17 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
+using OpenCVForUnity.UnityUtils.Helper;
 using OpenCVForUnity.UnityUtils;
 
-public class HandPositionEstimator : MonoBehaviour
+[RequireComponent (typeof(WebCamTextureToMatHelper))]
+public class HandPositionEstimatorWebcam : MonoBehaviour
 {
-    private CameraMatProvider cameraMatProvider;
+    private WebCamTextureToMatHelper webcamTextureToMatHelper;
 
     private GameObject previewCanvas;
     private RawImage previewImage;
@@ -18,47 +23,66 @@ public class HandPositionEstimator : MonoBehaviour
 
     void Start()
     {
-        #if UNITY_EDITOR || UNITY_STANDALONE
-        cameraMatProvider = GameObject.Find("CameraMatProviders/DesktopContainer/DesktopCameraMatProvider").GetComponent<CameraMatProvider>();
-        #else
-        cameraMatProvider = GameObject.Find("CameraMatProviders/MobileContainer/MobileCameraMatProvider").GetComponent<CameraMatProvider>();
-        #endif
+        webcamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>();
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
         previewImage = previewCanvas.transform.Find("PreviewImage").GetComponent<RawImage>();
         colorPickerImage = previewCanvas.transform.Find("ColorPickerImage").GetComponent<Image>();
+
+        if (Application.platform == RuntimePlatform.Android) {
+            webcamTextureToMatHelper.avoidAndroidFrontCameraLowLightIssue = true;
+        }
+
+        webcamTextureToMatHelper.Initialize();
+    }
+
+    public void OnWebCamTextureToMatHelperInitialized()
+    {
+        Mat frameMat = webcamTextureToMatHelper.GetMat();
+        previewTexture = new Texture2D(frameMat.width(), frameMat.height(), TextureFormat.RGBA32, false);
+        Utils.fastMatToTexture2D(frameMat, previewTexture);
+
+        previewImage.texture = previewTexture;
+    }
+
+    public void OnWebCamTextureToMatHelperDisposed ()
+    {
+        if (previewTexture != null)
+        {
+            Texture2D.Destroy(previewTexture);
+            previewTexture = null;
+        }
     }
 
     void Update()
     {
-        // Get new coords of the selected (touch or mouse) screen point.
         UpdateSelectedPoint();
 
         // Align color picker image with the selected point.
-        if (selectedPoint != null)
-            colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
-        else
+        if (selectedPoint != null) {
+            // colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
+        } else {
             colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
+        }
 
-        // Get an OpenCV material from the current camera frame.
-        Mat frameMat = cameraMatProvider.GetMat();
-        if (frameMat == null)
-            return;
-
-        // TODO: Perform hand detection and stuff.
-        if (selectedPoint != null)
+        if (!webcamTextureToMatHelper.IsPlaying() || !webcamTextureToMatHelper.DidUpdateThisFrame())
         {
+            return;
+        }
+
+        // Get an rgba material from the current camera frame.
+        Mat frameMat = webcamTextureToMatHelper.GetMat();
+
+        if (selectedPoint != null) {
             var frameSelectedPoint = GetFramePointFromScreenPoint(selectedPoint, frameMat);
 
             Imgproc.circle(frameMat, frameSelectedPoint, 50, new Scalar(255, 0, 0, 255), 3);
+            // Imgproc.circle(frameMat, new Point(100, 200), 50, new Scalar(255, 0, 0, 255), 3);
         }
 
-        // Update (creating new if needed) the preview texture with the changed frame material and display it on the preview image.
-        if (previewTexture == null || frameMat.width() != previewTexture.width || frameMat.height() != previewTexture.height)
-            previewTexture = new Texture2D(frameMat.width(), frameMat.height(), TextureFormat.RGBA32, false);
 
+        // Update Quad renderer texture with the processed frame material.
         Utils.fastMatToTexture2D(frameMat, previewTexture);
-        previewImage.texture = previewTexture;
     }
 
     private void UpdateSelectedPoint()
@@ -79,8 +103,7 @@ public class HandPositionEstimator : MonoBehaviour
         }
         else
         {
-            if (Input.GetMouseButton(0))
-            {
+            if (Input.GetMouseButton(0)) {
                 selectedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
             }
             // if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
@@ -90,8 +113,7 @@ public class HandPositionEstimator : MonoBehaviour
         }
     }
 
-    private Point GetFramePointFromScreenPoint(Point screenPoint, Mat frameMat)
-    {
+    private Point GetFramePointFromScreenPoint(Point screenPoint, Mat frameMat) {
         var canvasRect = previewCanvas.GetComponent<RectTransform>();
 
         float canvasScale = canvasRect.localScale.x;
