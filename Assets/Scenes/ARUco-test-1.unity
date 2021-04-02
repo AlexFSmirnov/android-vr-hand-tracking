@@ -863,7 +863,7 @@ MonoBehaviour:
   _requestedFPS: 30
   _rotate90Degree: 0
   _flipVertical: 0
-  _flipHorizontal: 0
+  _flipHorizontal: 1
   _outputColorFormat: 3
   _timeoutFrameCount: 300
   onInitialized:

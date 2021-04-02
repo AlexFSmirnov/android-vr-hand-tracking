@@ -49,6 +49,9 @@
      <Compile Include="Assets\Scripts\Test.cs" />
      <Compile Include="Assets\Scripts\Utils\PlatformVisibilityManager.cs" />
      <Compile Include="Assets\Scripts\Old\HandPositionEstimatorAR.cs" />
+     <Compile Include="Assets\Scripts\HandTrackers\ArUcoTracker.cs" />
+     <Compile Include="Assets\Scripts\HandTrackers\HandTracker.cs" />
+     <Compile Include="Assets\Scripts\Utils\HandInfo.cs" />
      <None Include="Assets\ExampleAssets\Shaders\FeatheredPlaneShader.shader" />
     <Reference Include="UnityEngine">
         <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.2f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

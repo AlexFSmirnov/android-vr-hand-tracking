@@ -22,4 +22,19 @@ public class CameraMatProvider : MonoBehaviour
         Utils.fastTexture2DToMat(cameraTexture, cameraMat);
         return cameraMat;
     }
+
+    void OnDestroy()
+    {
+        if (cameraTexture != null)
+        {
+            Texture2D.Destroy(cameraTexture);
+            cameraTexture = null;
+        }
+
+        if (cameraMat != null)
+        {
+            cameraMat.Dispose();
+            cameraMat = null;
+        }
+    }
 }

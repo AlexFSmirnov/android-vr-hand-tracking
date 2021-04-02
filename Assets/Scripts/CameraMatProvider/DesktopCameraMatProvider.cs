@@ -7,6 +7,7 @@ using OpenCVForUnity.UnityUtils.Helper;
 public class DesktopCameraMatProvider : CameraMatProvider
 {
     private WebCamTextureToMatHelper webcamTextureToMatHelper;
+    private Mat frameMat;
 
     void Start()
     {
@@ -21,8 +22,9 @@ public class DesktopCameraMatProvider : CameraMatProvider
 
     public void OnWebCamTextureToMatHelperInitialized()
     {
-        Mat frameMat = webcamTextureToMatHelper.GetMat();
+        frameMat = webcamTextureToMatHelper.GetMat();
         cameraTexture = new Texture2D(frameMat.width(), frameMat.height(), TextureFormat.RGBA32, false);
+
         Utils.fastMatToTexture2D(frameMat, cameraTexture);
     }
 
@@ -33,13 +35,19 @@ public class DesktopCameraMatProvider : CameraMatProvider
             Texture2D.Destroy(cameraTexture);
             cameraTexture = null;
         }
+
+        if (frameMat != null)
+        {
+            frameMat.Dispose();
+            frameMat = null;
+        }
     }
 
     void Update()
     {
         if (webcamTextureToMatHelper.IsPlaying() && webcamTextureToMatHelper.DidUpdateThisFrame())
         {
-            Mat frameMat = webcamTextureToMatHelper.GetMat();
+            frameMat = webcamTextureToMatHelper.GetMat();
             Utils.fastMatToTexture2D(frameMat, cameraTexture);
         }
     }
