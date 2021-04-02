@@ -3,6 +3,7 @@ using UnityEngine;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ArucoModule;
+using OpenCVForUnity.Calib3dModule;
 
 public class ArUcoTracker : HandTracker
 {
@@ -57,11 +58,43 @@ public class ArUcoTracker : HandTracker
         }
     }
 
+    // TODO: GetHandPositions, if no data is available, should interpolate using several previous frames. Extract to HandTracker?
     public void GetHandPositions(Mat rgbaMat, out List<HandInfo> hands, bool drawPreview = false)
     {
         Imgproc.cvtColor(rgbaMat, rgbMat, Imgproc.COLOR_RGBA2RGB);
 
-        Aruco.detectMarkers(rgbMat, markerDictionary, corners, ids, detectorParameters);
+        int max_d = (int)Mathf.Max (rgbMat.width(), rgbMat.height());
+        float fx = max_d;
+        float fy = max_d;
+        float cx = rgbaMat.width() / 2.0f;
+        float cy = rgbaMat.height() / 2.0f;
+
+        var camMatrix = new Mat (3, 3, CvType.CV_64FC1);
+        camMatrix.put (0, 0, fx);
+        camMatrix.put (0, 1, 0);
+        camMatrix.put (0, 2, cx);
+        camMatrix.put (1, 0, 0);
+        camMatrix.put (1, 1, fy);
+        camMatrix.put (1, 2, cy);
+        camMatrix.put (2, 0, 0);
+        camMatrix.put (2, 1, 0);
+        camMatrix.put (2, 2, 1.0f);
+
+        var distCoeffs = new MatOfDouble (0, 0, 0, 0);
+
+        Aruco.detectMarkers(rgbMat, markerDictionary, corners, ids, detectorParameters, new List<Mat>(), camMatrix, distCoeffs);
+
+        var rvecs = new Mat();
+        var tvecs = new Mat();
+        Aruco.estimatePoseSingleMarkers(corners, 0.05f, camMatrix, distCoeffs, rvecs, tvecs);
+
+        for (int i = 0; i < ids.total(); i++) {
+            using (Mat rvec = new Mat (rvecs, new OpenCVForUnity.CoreModule.Rect (0, i, 1, 1)))
+            using (Mat tvec = new Mat (tvecs, new OpenCVForUnity.CoreModule.Rect (0, i, 1, 1))) {
+                // In this example we are processing with RGB color image, so Axis-color correspondences are X: blue, Y: green, Z: red. (Usually X: red, Y: green, Z: blue)
+                Calib3d.drawFrameAxes(rgbMat, camMatrix, distCoeffs, rvec, tvec, 0.05f * 0.5f);
+            }
+        }
 
         if (drawPreview)
         {
