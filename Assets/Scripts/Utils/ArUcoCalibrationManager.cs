@@ -36,6 +36,8 @@ public class ArUcoCalibrationManager : MonoBehaviour
     private Dictionary markerDictionary;
     private DetectorParameters detectorParameters;
 
+    private CharucoBoard charucoBoard;
+
     void Start()
     {
         cameraMatProvider = GameObject.Find("CameraMatProvider").GetComponent<CameraMatProvider>();
@@ -85,6 +87,16 @@ public class ArUcoCalibrationManager : MonoBehaviour
 
         shutterButton.interactable = true;
 
+        // UNFINISHED
+        Imgproc.cvtColor(rgbaFrameMat, rgbFrameMat, Imgproc.COLOR_RGBA2RGB);
+        List<Mat> corners = new List<Mat>();
+        Mat ids = new Mat();
+        List<Mat> rejectedCorners = new List<Mat>();
+        Aruco.detectMarkers(rgbFrameMat, markerDictionary, corners, ids, detectorParameters, rejectedCorners, camMatrix, distCoeffs);
+        Aruco.drawDetectedMarkers(rgbFrameMat, corners, ids, new Scalar(0, 255, 0, 255));
+        Imgproc.cvtColor(rgbFrameMat, rgbaFrameMat, Imgproc.COLOR_RGB2RGBA);
+        // UNFINISHED ^
+
         // Update (creating new if needed) the preview texture with the changed frame matrix and display it on the preview image.
         if (cameraPreviewTexture == null || rgbaFrameMat.width() != cameraPreviewTexture.width || rgbaFrameMat.height() != cameraPreviewTexture.height)
             cameraPreviewTexture = new Texture2D(rgbaFrameMat.width(), rgbaFrameMat.height(), TextureFormat.RGBA32, false);
@@ -102,6 +114,9 @@ public class ArUcoCalibrationManager : MonoBehaviour
         List<Mat> rejectedCorners = new List<Mat>();
 
         Aruco.detectMarkers(rgbFrameMat, markerDictionary, corners, ids, detectorParameters, rejectedCorners, camMatrix, distCoeffs);
+
+        Aruco.drawDetectedMarkers(rgbFrameMat, corners, ids, new Scalar(0, 255, 0, 255));
+        Imgproc.cvtColor(rgbFrameMat, rgbaFrameMat, Imgproc.COLOR_RGB2RGBA);
 
         if (ids.total() > 0)
         {

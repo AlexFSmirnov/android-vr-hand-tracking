@@ -36,23 +36,24 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Utils\ArUcoCalibrationManager.cs" />
      <Compile Include="Assets\Scripts\Old\HandPositionEstimatorQuad.cs" />
-     <Compile Include="Assets\Scripts\MovementController_test.cs" />
-     <Compile Include="Assets\ExampleAssets\Scripts\AnchorCreator.cs" />
-     <Compile Include="Assets\ExampleAssets\Scripts\ARFeatheredPlaneMeshVisualizer.cs" />
-     <Compile Include="Assets\Scripts\HandPositionEstimator.cs" />
-     <Compile Include="Assets\Scripts\RaycastWorldInstantiator.cs" />
-     <Compile Include="Assets\Scripts\Old\HandPositionEstimatorWebcam.cs" />
-     <Compile Include="Assets\Scripts\CameraMatProviders\CameraMatProvider.cs" />
      <Compile Include="Assets\Scripts\CameraMatProviders\DesktopCameraMatProvider.cs" />
-     <Compile Include="Assets\Scripts\CameraMatProviders\MobileCameraMatProvider.cs" />
-     <Compile Include="Assets\Scripts\Test.cs" />
-     <Compile Include="Assets\Scripts\Utils\PlatformVisibilityManager.cs" />
-     <Compile Include="Assets\Scripts\Old\HandPositionEstimatorAR.cs" />
      <Compile Include="Assets\Scripts\HandTrackers\ArUcoTracker.cs" />
      <Compile Include="Assets\Scripts\HandTrackers\HandTracker.cs" />
-     <Compile Include="Assets\Scripts\Utils\HandInfo.cs" />
-     <Compile Include="Assets\Scripts\Utils\ArUcoCalibratioNManager.cs" />
+     <Compile Include="Assets\Scripts\MovementController_test.cs" />
+     <Compile Include="Assets\Scripts\Utils\PlatformVisibilityManager.cs" />
+     <Compile Include="Assets\Scripts\Old\HandPositionEstimatorAR.cs" />
+     <Compile Include="Assets\ExampleAssets\Scripts\AnchorCreator.cs" />
+     <Compile Include="Assets\Scripts\Test.cs" />
+     <Compile Include="Assets\Scripts\CameraMatProviders\CameraMatProvider.cs" />
+     <Compile Include="Assets\ExampleAssets\Scripts\ARFeatheredPlaneMeshVisualizer.cs" />
+     <Compile Include="Assets\Scripts\CameraMatProviders\MobileCameraMatProvider.cs" />
+     <Compile Include="Assets\Scripts\RaycastWorldInstantiator.cs" />
+     <Compile Include="Assets\Scripts\Old\HandPositionEstimatorWebcam.cs" />
+     <Compile Include="Assets\Scripts\Utils\HandTransform.cs" />
+     <Compile Include="Assets\Scripts\HandPositionEstimator.cs" />
+     <Compile Include="Assets\Scripts\Utils\ScreenUtils.cs" />
      <None Include="Assets\ExampleAssets\Shaders\FeatheredPlaneShader.shader" />
     <Reference Include="UnityEngine">
         <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.2f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

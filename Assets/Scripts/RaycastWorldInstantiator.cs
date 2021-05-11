@@ -8,6 +8,7 @@ public class RaycastWorldInstantiator : MonoBehaviour
 {
     public GameObject worldPrefab;
 
+    private Camera targetCamera;
     private GameObject worldInstance;
 
     private ARRaycastManager raycastManager;
@@ -15,6 +16,7 @@ public class RaycastWorldInstantiator : MonoBehaviour
 
     void Start()
     {
+        targetCamera = gameObject.transform.Find("AR Camera").GetComponent<Camera>();
         raycastManager = gameObject.GetComponent<ARRaycastManager>();
     }
 
@@ -46,9 +48,10 @@ public class RaycastWorldInstantiator : MonoBehaviour
         if (raycastManager.Raycast(touchPosition, raycastHits, TrackableType.PlaneWithinPolygon))
         {
             // Raycast hits are sorted by distance, so the first one will be the closest hit.
-            var hitPose = raycastHits[0].pose;
+            var worldPosition = raycastHits[0].pose.position;
+            var worldRotation = Quaternion.Euler(0, targetCamera.transform.eulerAngles.y, 0);
 
-            worldInstance = Instantiate(worldPrefab, hitPose.position, hitPose.rotation);
+            worldInstance = Instantiate(worldPrefab, worldPosition, worldRotation);
         }
     }
 }

@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.ArucoModule;
 using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
@@ -11,6 +10,9 @@ public class HandPositionEstimator : MonoBehaviour
     public enum HandTrackerType { ArUco, Threshold };
     public HandTrackerType handTrackerType = HandTrackerType.ArUco;
 
+    public GameObject handObj;
+
+    private Camera targetCamera;
     private CameraMatProvider cameraMatProvider;
     private HandTracker handTracker;
 
@@ -26,13 +28,14 @@ public class HandPositionEstimator : MonoBehaviour
     void Start()
     {
         #if UNITY_EDITOR || UNITY_STANDALONE
+        targetCamera = GameObject.Find("DesktopDebug/Camera").GetComponent<Camera>();
         cameraMatProvider = GameObject.Find("CameraMatProviders/DesktopContainer/DesktopCameraMatProvider").GetComponent<CameraMatProvider>();
         #else
+        targetCamera = GameObject.Find("AR/AR Session Origin/AR Camera").GetComponent<Camera>();
         cameraMatProvider = GameObject.Find("CameraMatProviders/MobileContainer/MobileCameraMatProvider").GetComponent<CameraMatProvider>();
         #endif
 
         handTracker = new ArUcoTracker();
-        handTracker.Initialize();
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
         previewImage = previewCanvas.transform.Find("PreviewImage").GetComponent<RawImage>();
@@ -58,29 +61,44 @@ public class HandPositionEstimator : MonoBehaviour
 
     void Update()
     {
-        // Get new coords of the selected (touch or mouse) screen point.
-        UpdateSelectedPoint();
+        if (handTrackerType == HandTrackerType.Threshold)
+        {
+            // Get new coords of the selected (touch or mouse) screen point.
+            UpdateSelectedPoint();
 
-        // Align color picker image with the selected point.
-        if (selectedPoint != null)
-            colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
-        else
-            colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
+            // Align color picker image with the selected point.
+            if (selectedPoint != null)
+                colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
+            else
+                colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
+        }
 
         // Get an OpenCV matrix from the current camera frame.
         rgbaFrameMat = cameraMatProvider.GetMat();
         if (rgbaFrameMat == null)
             return;
 
-        // TODO: Sample colors from the selected point.
-        if (selectedPoint != null)
+        if (!handTracker.IsInitialized())
         {
-            var frameSelectedPoint = GetFramePointFromScreenPoint(selectedPoint, rgbaFrameMat);
+            handTracker.Initialize(rgbaFrameMat.width(), rgbaFrameMat.height(), targetCamera);
+            return;
+        }
+
+        // TODO: Sample colors from the selected point.
+        if (selectedPoint != null && handTrackerType == HandTrackerType.Threshold)
+        {
+            var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaFrameMat.width(), rgbaFrameMat.height());
             Imgproc.circle(rgbaFrameMat, frameSelectedPoint, 50, new Scalar(255, 0, 0, 255), 3);
         }
 
-        // TODO: Perform hand detection and stuff.
-        handTracker.GetHandPositions(rgbaFrameMat, out List<HandInfo> hands, true);
+        handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, true);
+
+        // TODO: Improve hand objects - should support at least 2.
+        if (hands.Count > 0) {
+            // handObj.GetComponent<Rigidbody>().MovePosition(hands[0].position);
+            handObj.transform.localPosition = hands[0].position;
+            // handObj.transform.eulerAngles = hands[0].rotation;
+        }
 
         // Update (creating new if needed) the preview texture with the changed frame matrix and display it on the preview image.
         if (previewTexture == null || rgbaFrameMat.width() != previewTexture.width || rgbaFrameMat.height() != previewTexture.height)
@@ -100,10 +118,6 @@ public class HandPositionEstimator : MonoBehaviour
             {
                 Touch t = Input.GetTouch(0);
                 selectedPoint = new Point(t.position.x, t.position.y);
-                // if (t.phase == TouchPhase.Ended && !EventSystem.current.IsPointerOverGameObject(t.fingerId))
-                // {
-                //     clickedPoint = new Point(t.position.x, t.position.y);
-                // }
             }
         }
         else
@@ -112,33 +126,6 @@ public class HandPositionEstimator : MonoBehaviour
             {
                 selectedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
             }
-            // if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
-            // {
-            //     clickedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
-            // }
         }
-    }
-
-    private Point GetFramePointFromScreenPoint(Point screenPoint, Mat frameMat)
-    {
-        var canvasRect = previewCanvas.GetComponent<RectTransform>();
-
-        float canvasScale = canvasRect.localScale.x;
-        float canvasWidth = canvasRect.sizeDelta.x;
-        float canvasHeight = canvasRect.sizeDelta.y;
-
-        float frameWidth = frameMat.width();
-        float frameHeight = frameMat.height();
-
-        var canvasPoint = screenPoint / canvasScale;
-        var offsetPoint = new Point(
-            canvasPoint.x + (frameWidth - canvasWidth) / 2,
-            canvasPoint.y + (frameHeight - canvasHeight) / 2
-        );
-
-        return new Point(
-            offsetPoint.x,
-            frameHeight - offsetPoint.y
-        );
     }
 }
