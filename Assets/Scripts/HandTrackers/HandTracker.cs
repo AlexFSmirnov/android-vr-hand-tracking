@@ -9,4 +9,6 @@ interface HandTracker
     void Dispose();
 
     void GetHandPositions(Mat rgbaMat, out List<HandTransform> hands, bool drawPreview = false);
+
+    void SetThresholdColors(Scalar lower, Scalar upper);
 }

@@ -179,4 +179,6 @@ public class ArUcoTracker : HandTracker
 
         return (topLeft + bottomRight) / 2;
     }
+
+    public void SetThresholdColors(Scalar lower, Scalar upper) { }
 }

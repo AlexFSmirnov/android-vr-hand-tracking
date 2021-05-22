@@ -24,6 +24,8 @@ public class HandPositionEstimator : MonoBehaviour
     private Texture2D previewTexture;
 
     private Point selectedPoint = null;
+    private int colorPickerRadius = 45;
+    private ColorRange thresholdColorRange = null;
 
     void Start()
     {
@@ -35,7 +37,14 @@ public class HandPositionEstimator : MonoBehaviour
         cameraMatProvider = GameObject.Find("CameraMatProviders/MobileContainer/MobileCameraMatProvider").GetComponent<CameraMatProvider>();
         #endif
 
-        handTracker = new ArUcoTracker();
+        if (handTrackerType == HandTrackerType.ArUco)
+        {
+            handTracker = new ArUcoTracker();
+        }
+        else if (handTrackerType == HandTrackerType.Threshold)
+        {
+            handTracker = new ThresholdTracker();
+        }
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
         previewImage = previewCanvas.transform.Find("PreviewImage").GetComponent<RawImage>();
@@ -61,23 +70,18 @@ public class HandPositionEstimator : MonoBehaviour
 
     void Update()
     {
-        if (handTrackerType == HandTrackerType.Threshold)
-        {
-            // Get new coords of the selected (touch or mouse) screen point.
-            UpdateSelectedPoint();
-
-            // Align color picker image with the selected point.
-            if (selectedPoint != null)
-                colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
-            else
-                colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
-        }
-
         // Get an OpenCV matrix from the current camera frame.
         rgbaFrameMat = cameraMatProvider.GetMat();
         if (rgbaFrameMat == null)
             return;
 
+        // If using the threshold marker, update the color picker position and color.
+        if (handTrackerType == HandTrackerType.Threshold)
+        {
+            UpdateColorPicker(rgbaFrameMat);
+        }
+
+        // Initialize the hand tracker, if not yet initialized.
         if (!handTracker.IsInitialized())
         {
             handTracker.Initialize(rgbaFrameMat.width(), rgbaFrameMat.height(), targetCamera);
@@ -85,11 +89,11 @@ public class HandPositionEstimator : MonoBehaviour
         }
 
         // TODO: Sample colors from the selected point.
-        if (selectedPoint != null && handTrackerType == HandTrackerType.Threshold)
-        {
-            var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaFrameMat.width(), rgbaFrameMat.height());
-            Imgproc.circle(rgbaFrameMat, frameSelectedPoint, 50, new Scalar(255, 0, 0, 255), 3);
-        }
+        // if (selectedPoint != null && handTrackerType == HandTrackerType.Threshold)
+        // {
+        //     var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaFrameMat.width(), rgbaFrameMat.height());
+        //     Imgproc.circle(rgbaFrameMat, frameSelectedPoint, 50, new Scalar(255, 0, 0, 255), 3);
+        // }
 
         handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, true);
 
@@ -106,6 +110,40 @@ public class HandPositionEstimator : MonoBehaviour
 
         Utils.fastMatToTexture2D(rgbaFrameMat, previewTexture);
         previewImage.texture = previewTexture;
+    }
+
+    private void UpdateColorPicker(Mat rgbaMat)
+    {
+        // Get new coords of the selected (touch or mouse) screen point.
+        UpdateSelectedPoint();
+
+        // Align color picker image with the selected point.
+        if (selectedPoint != null)
+        {
+            colorPickerImage.rectTransform.position = new Vector3((float)selectedPoint.x, (float)selectedPoint.y, 0);
+
+            var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaMat.width(), rgbaMat.height());
+            thresholdColorRange = ColorUtils.GetColorRangeFromCircle(frameSelectedPoint, colorPickerRadius, rgbaMat);
+
+            // handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
+
+            colorPickerImage.color = new Color(
+                (float)thresholdColorRange.rgbAverage.val[0] / 255,
+                (float)thresholdColorRange.rgbAverage.val[1] / 255,
+                (float)thresholdColorRange.rgbAverage.val[2] / 255
+            );
+        }
+        else
+        {
+            colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
+
+            // handTracker.SetThresholdColors(null, null);
+            if (thresholdColorRange != null)
+            {
+                handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
+            }
+        }
+        
     }
 
     private void UpdateSelectedPoint()
