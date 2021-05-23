@@ -62,10 +62,6 @@ public static class ColorUtils
                     totalG += (float)rgbColor.val[1];
                     totalB += (float)rgbColor.val[2];
                     totalPixels += 1;
-
-                    // Imgproc.circle(rgbaMat, new Point(x, y), 1, new Scalar(color.val[1], color.val[1], color.val[1], 255));
-                    // Imgproc.circle(rgbaMat, new Point(x, y), 1, new Scalar(color.val[0], color.val[1], color.val[2], 255));
-                    // Debug.Log(color);
                 }
             }
         }
@@ -93,10 +89,6 @@ public static class ColorUtils
 
         var hsvLower = new Scalar(paddedMinHue, paddedMinSat, paddedMinVal);
         var hsvUpper = new Scalar(paddedMaxHue, paddedMaxSat, paddedMaxVal);
-
-        Debug.Log(hsvLower);
-        Debug.Log(hsvUpper);
-        Debug.Log("");
 
         var rgbAverage = new Scalar(
             Mathf.RoundToInt(totalR / totalPixels),

@@ -88,13 +88,6 @@ public class HandPositionEstimator : MonoBehaviour
             return;
         }
 
-        // TODO: Sample colors from the selected point.
-        // if (selectedPoint != null && handTrackerType == HandTrackerType.Threshold)
-        // {
-        //     var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaFrameMat.width(), rgbaFrameMat.height());
-        //     Imgproc.circle(rgbaFrameMat, frameSelectedPoint, 50, new Scalar(255, 0, 0, 255), 3);
-        // }
-
         handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, true);
 
         // TODO: Improve hand objects - should support at least 2.
@@ -125,7 +118,7 @@ public class HandPositionEstimator : MonoBehaviour
             var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaMat.width(), rgbaMat.height());
             thresholdColorRange = ColorUtils.GetColorRangeFromCircle(frameSelectedPoint, colorPickerRadius, rgbaMat);
 
-            // handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
+            handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
 
             colorPickerImage.color = new Color(
                 (float)thresholdColorRange.rgbAverage.val[0] / 255,
@@ -136,12 +129,6 @@ public class HandPositionEstimator : MonoBehaviour
         else
         {
             colorPickerImage.rectTransform.position = new Vector3(-1000, -1000, 0);
-
-            // handTracker.SetThresholdColors(null, null);
-            if (thresholdColorRange != null)
-            {
-                handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
-            }
         }
         
     }
