@@ -7,7 +7,7 @@ using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
 {
-    public enum HandTrackerType { ArUco, Threshold, OpenPose };
+    public enum HandTrackerType { ArUco, Threshold, OpenPose, Yolo };
     public HandTrackerType handTrackerType = HandTrackerType.ArUco;
 
     public GameObject handObj;
@@ -31,6 +31,7 @@ public class HandPositionEstimator : MonoBehaviour
     void Start()
     {
         stageManager = GameObject.Find("StageManager").GetComponent<StageManager>();
+        stageManager.SetFirstStage(handTrackerType);
 
         #if UNITY_EDITOR || UNITY_STANDALONE
         targetCamera = GameObject.Find("DesktopDebug/Camera").GetComponent<Camera>();
@@ -43,29 +44,18 @@ public class HandPositionEstimator : MonoBehaviour
         if (handTrackerType == HandTrackerType.ArUco)
         {
             handTracker = new ArUcoTracker();
-
-            // Skip world instantiation for desktop and standalone.
-            #if UNITY_EDITOR || UNITY_STANDALONE
-            stageManager.SetStage(StageManager.Stage.Main);
-            #else
-            stageManager.SetStage(StageManager.Stage.WorldInstantiation);
-            #endif
         }
         else if (handTrackerType == HandTrackerType.Threshold)
         {
             handTracker = new ThresholdTracker();
-            stageManager.SetStage(StageManager.Stage.ThresholdColorPicker);
         }
         else if (handTrackerType == HandTrackerType.OpenPose)
         {
             handTracker = new OpenPoseTracker();
-
-            // Skip world instantiation for desktop and standalone.
-            #if UNITY_EDITOR || UNITY_STANDALONE
-            stageManager.SetStage(StageManager.Stage.Main);
-            #else
-            stageManager.SetStage(StageManager.Stage.WorldInstantiation);
-            #endif
+        }
+        else if (handTrackerType == HandTrackerType.Yolo)
+        {
+            handTracker = new YoloTracker();
         }
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;

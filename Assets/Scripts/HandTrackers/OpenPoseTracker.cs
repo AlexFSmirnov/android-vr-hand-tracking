@@ -12,9 +12,10 @@ public class OpenPoseTracker : HandTracker
 
     private Mat rgbMat;
 
+    private Net openPoseNet = null;
+
     private Dictionary<string, int> bodyParts;
     private string[,] posePairs;
-    private Net openPoseNet = null;
 
     public void Initialize(int frameWidth, int frameHeight, Camera camera)
     {
@@ -40,6 +41,7 @@ public class OpenPoseTracker : HandTracker
             {"Wrist", "LittleFingerMetacarpal"}, {"LittleFingerMetacarpal", "LittleFingerProximal"},
             {"LittleFingerProximal", "LittleFingerMiddle"}, {"LittleFingerMiddle", "LittleFingerDistal"} };
 
+        // TODO: Move filenames to private vars (unify with YoloTracker)
         var caffemodelFilepath = Utils.getFilePath("dnn/pose_iter_102000.caffemodel");
         var prototxtFilepath = Utils.getFilePath("dnn/pose_deploy.prototxt");
 

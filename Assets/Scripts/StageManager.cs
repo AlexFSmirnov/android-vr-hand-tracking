@@ -23,6 +23,27 @@ public class StageManager : MonoBehaviour
         return stage;
     }
 
+    public void SetFirstStage(HandPositionEstimator.HandTrackerType handTrackerType)
+    {
+        switch (handTrackerType)
+        {
+            case HandPositionEstimator.HandTrackerType.ArUco:
+            case HandPositionEstimator.HandTrackerType.OpenPose:
+            case HandPositionEstimator.HandTrackerType.Yolo:
+                // Skip world instantiation for desktop and standalone.
+                #if UNITY_EDITOR || UNITY_STANDALONE
+                stage = Stage.Main;
+                #else
+                stage = Stage.WorldInstantiation;
+                #endif
+                break;
+
+            case HandPositionEstimator.HandTrackerType.Threshold:
+                stage = Stage.ThresholdColorPicker;
+                break;
+        }
+    }
+
     public void GoToNextStage()
     {
         switch (stage)
