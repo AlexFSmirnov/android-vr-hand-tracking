@@ -7,7 +7,7 @@ using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
 {
-    public enum HandTrackerType { ArUco, Threshold };
+    public enum HandTrackerType { ArUco, Threshold, OpenPose };
     public HandTrackerType handTrackerType = HandTrackerType.ArUco;
 
     public GameObject handObj;
@@ -55,6 +55,17 @@ public class HandPositionEstimator : MonoBehaviour
         {
             handTracker = new ThresholdTracker();
             stageManager.SetStage(StageManager.Stage.ThresholdColorPicker);
+        }
+        else if (handTrackerType == HandTrackerType.OpenPose)
+        {
+            handTracker = new OpenPoseTracker();
+
+            // Skip world instantiation for desktop and standalone.
+            #if UNITY_EDITOR || UNITY_STANDALONE
+            stageManager.SetStage(StageManager.Stage.Main);
+            #else
+            stageManager.SetStage(StageManager.Stage.WorldInstantiation);
+            #endif
         }
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
