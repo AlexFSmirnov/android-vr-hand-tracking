@@ -29,7 +29,8 @@ public class StageManager : MonoBehaviour
         {
             case HandPositionEstimator.HandTrackerType.ArUco:
             case HandPositionEstimator.HandTrackerType.OpenPose:
-            case HandPositionEstimator.HandTrackerType.Yolo:
+            case HandPositionEstimator.HandTrackerType.Yolo3:
+            case HandPositionEstimator.HandTrackerType.Yolo3Tiny:
                 // Skip world instantiation for desktop and standalone.
                 #if UNITY_EDITOR || UNITY_STANDALONE
                 stage = Stage.Main;

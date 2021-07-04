@@ -7,7 +7,7 @@ using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
 {
-    public enum HandTrackerType { ArUco, Threshold, OpenPose, Yolo };
+    public enum HandTrackerType { ArUco, Threshold, OpenPose, Yolo3, Yolo3Tiny };
     public HandTrackerType handTrackerType = HandTrackerType.ArUco;
 
     public GameObject handObj;
@@ -53,9 +53,13 @@ public class HandPositionEstimator : MonoBehaviour
         {
             handTracker = new OpenPoseTracker();
         }
-        else if (handTrackerType == HandTrackerType.Yolo)
+        else if (handTrackerType == HandTrackerType.Yolo3)
         {
-            handTracker = new YoloTracker();
+            handTracker = new YoloTracker(tiny: false);
+        }
+        else if (handTrackerType == HandTrackerType.Yolo3Tiny)
+        {
+            handTracker = new YoloTracker(tiny: true);
         }
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;

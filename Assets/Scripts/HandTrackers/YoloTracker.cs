@@ -5,7 +5,6 @@ using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.DnnModule;
 using OpenCVForUnity.UnityUtils;
-using OpenCVForUnity.ImgcodecsModule;
 
 public class YoloTracker : HandTracker
 {
@@ -16,20 +15,34 @@ public class YoloTracker : HandTracker
     private Mat rgbMat;
 
     private Net yoloNet;
-    private Size yoloInputSize = new Size(320, 320);
-    private float confidenceThreshold = 0.5f;
+    private Size yoloInputSize;
+    private float confidenceThreshold = 0.3f;
     private float nmsThreshold = 0.4f;
 
-    // TODO: Remove once using custom model;
-    private string classesFilename = "coco.names";
-    private List<string> classNames;
-    private string configFilename = "yolov4-tiny.weights";
-    private string modelFilename = "yolov4-tiny.cfg";
+    private List<string> classNames = new List<string> { "hand" };
+    private string configFilename;
+    private string modelFilename;
 
     private List<string> outBlobNames;
     private List<string> outBlobTypes;
     private Mat input;
     private List<Mat> outputs;
+
+    public YoloTracker(bool tiny=false)
+    {
+        if (tiny)
+        {
+            yoloInputSize = new Size(416, 416);
+            configFilename = "cross-hands-tiny-prn.weights";
+            modelFilename = "cross-hands-tiny-prn.cfg";
+        }
+        else
+        {
+            yoloInputSize = new Size(256, 256);
+            configFilename = "cross-hands.weights";
+            modelFilename = "cross-hands.cfg";
+        }
+    }
 
     public void Initialize(int frameWidth, int frameHeight, Camera camera)
     {
@@ -38,8 +51,6 @@ public class YoloTracker : HandTracker
 
         string configFilepath = Utils.getFilePath("dnn/" + configFilename);
         string modelFilepath = Utils.getFilePath("dnn/" + modelFilename);
-
-        classNames = readClassNames(Utils.getFilePath("dnn/" + classesFilename));
 
         yoloNet = Dnn.readNet(modelFilepath, configFilepath);
         outBlobNames = getOutputsNames(yoloNet);
@@ -108,35 +119,6 @@ public class YoloTracker : HandTracker
 
     public void SetThresholdColors(Scalar lower, Scalar upper) { }
 
-    protected virtual List<string> readClassNames(string filename)
-    {
-        List<string> classNames = new List<string>();
-
-        System.IO.StreamReader cReader = null;
-        try
-        {
-            cReader = new System.IO.StreamReader(filename, System.Text.Encoding.Default);
-
-            while (cReader.Peek() >= 0)
-            {
-                string name = cReader.ReadLine();
-                classNames.Add(name);
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError(ex.Message);
-            return null;
-        }
-        finally
-        {
-            if (cReader != null)
-                cReader.Close();
-        }
-
-        return classNames;
-    }
-
     private List<string> getOutputsNames(Net net)
     {
         List<string> names = new List<string>();
@@ -165,6 +147,7 @@ public class YoloTracker : HandTracker
         return types;
     }
 
+    // TODO Rewrite this stuff
     protected virtual void postprocess()
     {
         MatOfInt outLayers = yoloNet.getUnconnectedOutLayers();
