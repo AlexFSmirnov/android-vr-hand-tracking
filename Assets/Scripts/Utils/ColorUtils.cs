@@ -82,10 +82,10 @@ public static class ColorUtils
         // Pad hues and saturations to achieve a bigger color range.
         float paddedMinHue = Mathf.Max(0, minHue - 10);
         float paddedMaxHue = Mathf.Min(179, maxHue + 10);
-        float paddedMinSat = Mathf.Max(0, minSat * 0.75f);
-        float paddedMaxSat = Mathf.Min(255, maxSat * 1.5f);
-        float paddedMinVal = Mathf.Max(0, minVal * 0.75f);
-        float paddedMaxVal = Mathf.Min(255, maxVal * 1.5f);
+        float paddedMinSat = Mathf.Max(0, minSat * 0.5f);
+        float paddedMaxSat = Mathf.Min(255, maxSat * 2f);
+        float paddedMinVal = Mathf.Max(0, minVal * 0.5f);
+        float paddedMaxVal = Mathf.Min(255, maxVal * 2f);
 
         var hsvLower = new Scalar(paddedMinHue, paddedMinSat, paddedMinVal);
         var hsvUpper = new Scalar(paddedMaxHue, paddedMaxSat, paddedMaxVal);

@@ -104,7 +104,7 @@ public class ThresholdTracker : HandTracker
         Imgproc.cvtColor(rgbMat, hsvMat, Imgproc.COLOR_RGB2HSV);
 
         // Blur the image for better thesholding.
-        Imgproc.blur(hsvMat, hsvMat, new Size(2, 2));
+        Imgproc.blur(hsvMat, hsvMat, new Size(3, 3));
 
         // Mask all colors between the provided HSV range.
         Core.inRange(hsvMat, lowerThresholdColor, upperThresholdColor, handMask);

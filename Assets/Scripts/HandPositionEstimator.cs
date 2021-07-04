@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using OpenCVForUnity.CoreModule;
-using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
@@ -12,6 +12,7 @@ public class HandPositionEstimator : MonoBehaviour
 
     public GameObject handObj;
 
+    private GameManager gameManager;
     private Camera targetCamera;
     private CameraMatProvider cameraMatProvider;
     private HandTracker handTracker;
@@ -29,6 +30,8 @@ public class HandPositionEstimator : MonoBehaviour
 
     void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
         #if UNITY_EDITOR || UNITY_STANDALONE
         targetCamera = GameObject.Find("DesktopDebug/Camera").GetComponent<Camera>();
         cameraMatProvider = GameObject.Find("CameraMatProviders/DesktopContainer/DesktopCameraMatProvider").GetComponent<CameraMatProvider>();
@@ -40,10 +43,18 @@ public class HandPositionEstimator : MonoBehaviour
         if (handTrackerType == HandTrackerType.ArUco)
         {
             handTracker = new ArUcoTracker();
+
+            // Skip world instantiation for desktop and standalone.
+            #if UNITY_EDITOR || UNITY_STANDALONE
+            gameManager.SetStage(GameManager.Stage.Main);
+            #else
+            gameManager.SetStage(GameManager.Stage.WorldInstantiation);
+            #endif
         }
         else if (handTrackerType == HandTrackerType.Threshold)
         {
             handTracker = new ThresholdTracker();
+            gameManager.SetStage(GameManager.Stage.ThresholdColorPicker);
         }
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
@@ -76,7 +87,7 @@ public class HandPositionEstimator : MonoBehaviour
             return;
 
         // If using the threshold marker, update the color picker position and color.
-        if (handTrackerType == HandTrackerType.Threshold)
+        if (handTrackerType == HandTrackerType.Threshold && gameManager.GetStage() == GameManager.Stage.ThresholdColorPicker)
         {
             UpdateColorPicker(rgbaFrameMat);
         }
@@ -88,21 +99,32 @@ public class HandPositionEstimator : MonoBehaviour
             return;
         }
 
-        handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, true);
+        bool drawPreview = gameManager.isDebug || gameManager.GetStage() == GameManager.Stage.ThresholdColorPicker;
 
-        // TODO: Improve hand objects - should support at least 2.
-        if (hands.Count > 0) {
-            // handObj.GetComponent<Rigidbody>().MovePosition(hands[0].position);
-            handObj.transform.localPosition = hands[0].position;
-            // handObj.transform.eulerAngles = hands[0].rotation;
+        handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, drawPreview);
+
+        if (gameManager.GetStage() == GameManager.Stage.Main)
+        {
+
+            // TODO: Improve hand objects - should support at least 2.
+            if (hands.Count > 0) {
+                handObj.transform.localPosition = hands[0].position;
+            }
         }
 
         // Update (creating new if needed) the preview texture with the changed frame matrix and display it on the preview image.
-        if (previewTexture == null || rgbaFrameMat.width() != previewTexture.width || rgbaFrameMat.height() != previewTexture.height)
-            previewTexture = new Texture2D(rgbaFrameMat.width(), rgbaFrameMat.height(), TextureFormat.RGBA32, false);
+        if (drawPreview)
+        {
+            if (previewTexture == null || rgbaFrameMat.width() != previewTexture.width || rgbaFrameMat.height() != previewTexture.height)
+                previewTexture = new Texture2D(rgbaFrameMat.width(), rgbaFrameMat.height(), TextureFormat.RGBA32, false);
 
-        Utils.fastMatToTexture2D(rgbaFrameMat, previewTexture);
-        previewImage.texture = previewTexture;
+            Utils.fastMatToTexture2D(rgbaFrameMat, previewTexture);
+            previewImage.texture = previewTexture;
+        }
+        else
+        {
+            previewImage.color = new Color(0, 0, 0, 0);
+        }
     }
 
     private void UpdateColorPicker(Mat rgbaMat)
@@ -150,6 +172,25 @@ public class HandPositionEstimator : MonoBehaviour
             if (Input.GetMouseButton(0))
             {
                 selectedPoint = new Point(Input.mousePosition.x, Input.mousePosition.y);
+            }
+        }
+
+        // Ignore the point if it is inside a button.
+        if (selectedPoint != null)
+        {
+            var raycastResults = new List<RaycastResult>();
+            var pointerEventData = new PointerEventData(EventSystem.current);
+            pointerEventData.position = new Vector2((float)selectedPoint.x, (float)selectedPoint.y);
+
+            EventSystem.current.RaycastAll(pointerEventData, raycastResults);
+
+            foreach (var result in raycastResults)
+            {
+                if (result.gameObject.name.Contains("Button"))
+                {
+                    selectedPoint = null;
+                    return;
+                }
             }
         }
     }

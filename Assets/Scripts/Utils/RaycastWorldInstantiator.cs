@@ -8,6 +8,7 @@ public class RaycastWorldInstantiator : MonoBehaviour
 {
     public GameObject worldPrefab;
 
+    private GameManager gameManager;
     private Camera targetCamera;
     private GameObject worldInstance;
 
@@ -16,6 +17,7 @@ public class RaycastWorldInstantiator : MonoBehaviour
 
     void Start()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         targetCamera = gameObject.transform.Find("AR Camera").GetComponent<Camera>();
         raycastManager = gameObject.GetComponent<ARRaycastManager>();
     }
@@ -34,7 +36,7 @@ public class RaycastWorldInstantiator : MonoBehaviour
 
     void Update()
     {
-        if (worldInstance != null)
+        if (gameManager.GetStage() != GameManager.Stage.WorldInstantiation || worldInstance != null)
         {
             return;
         }
@@ -52,6 +54,8 @@ public class RaycastWorldInstantiator : MonoBehaviour
             var worldRotation = Quaternion.Euler(0, targetCamera.transform.eulerAngles.y, 0);
 
             worldInstance = Instantiate(worldPrefab, worldPosition, worldRotation);
+
+            gameManager.GoToNextStage();
         }
     }
 }
