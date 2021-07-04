@@ -41,6 +41,7 @@
      <Compile Include="Assets\Scripts\CameraMatProviders\DesktopCameraMatProvider.cs" />
      <Compile Include="Assets\Scripts\HandTrackers\ArUcoTracker.cs" />
      <Compile Include="Assets\Scripts\Utils\ScreenUtils.cs" />
+     <Compile Include="Assets\Scripts\UIManager.cs" />
      <Compile Include="Assets\Scripts\HandTrackers\HandTracker.cs" />
      <Compile Include="Assets\Scripts\MovementController_test.cs" />
      <Compile Include="Assets\Scripts\Utils\ColorUtils.cs" />
@@ -54,9 +55,8 @@
      <Compile Include="Assets\Scripts\Utils\RaycastWorldInstantiator.cs" />
      <Compile Include="Assets\Scripts\Old\HandPositionEstimatorWebcam.cs" />
      <Compile Include="Assets\Scripts\Utils\HandTransform.cs" />
+     <Compile Include="Assets\Scripts\StageManager.cs" />
      <Compile Include="Assets\Scripts\HandPositionEstimator.cs" />
-     <Compile Include="Assets\Scripts\GameManager.cs" />
-     <Compile Include="Assets\Scripts\UIManager.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />

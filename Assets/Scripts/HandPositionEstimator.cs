@@ -12,7 +12,7 @@ public class HandPositionEstimator : MonoBehaviour
 
     public GameObject handObj;
 
-    private GameManager gameManager;
+    private StageManager stageManager;
     private Camera targetCamera;
     private CameraMatProvider cameraMatProvider;
     private HandTracker handTracker;
@@ -30,7 +30,7 @@ public class HandPositionEstimator : MonoBehaviour
 
     void Start()
     {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        stageManager = GameObject.Find("StageManager").GetComponent<StageManager>();
 
         #if UNITY_EDITOR || UNITY_STANDALONE
         targetCamera = GameObject.Find("DesktopDebug/Camera").GetComponent<Camera>();
@@ -46,15 +46,15 @@ public class HandPositionEstimator : MonoBehaviour
 
             // Skip world instantiation for desktop and standalone.
             #if UNITY_EDITOR || UNITY_STANDALONE
-            gameManager.SetStage(GameManager.Stage.Main);
+            stageManager.SetStage(StageManager.Stage.Main);
             #else
-            gameManager.SetStage(GameManager.Stage.WorldInstantiation);
+            stageManager.SetStage(StageManager.Stage.WorldInstantiation);
             #endif
         }
         else if (handTrackerType == HandTrackerType.Threshold)
         {
             handTracker = new ThresholdTracker();
-            gameManager.SetStage(GameManager.Stage.ThresholdColorPicker);
+            stageManager.SetStage(StageManager.Stage.ThresholdColorPicker);
         }
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
@@ -87,7 +87,7 @@ public class HandPositionEstimator : MonoBehaviour
             return;
 
         // If using the threshold marker, update the color picker position and color.
-        if (handTrackerType == HandTrackerType.Threshold && gameManager.GetStage() == GameManager.Stage.ThresholdColorPicker)
+        if (handTrackerType == HandTrackerType.Threshold && stageManager.GetStage() == StageManager.Stage.ThresholdColorPicker)
         {
             UpdateColorPicker(rgbaFrameMat);
         }
@@ -99,11 +99,11 @@ public class HandPositionEstimator : MonoBehaviour
             return;
         }
 
-        bool drawPreview = gameManager.isDebug || gameManager.GetStage() == GameManager.Stage.ThresholdColorPicker;
+        bool drawPreview = stageManager.isDebug || stageManager.GetStage() == StageManager.Stage.ThresholdColorPicker;
 
         handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, drawPreview);
 
-        if (gameManager.GetStage() == GameManager.Stage.Main)
+        if (stageManager.GetStage() == StageManager.Stage.Main)
         {
 
             // TODO: Improve hand objects - should support at least 2.
