@@ -10,10 +10,9 @@ public class ArUcoTracker : HandTracker
 {
     private bool isInitialized = false;
     private Camera targetCamera;
+    private Mat rgbMat;
 
     private int dictionaryId;
-
-    private Mat rgbMat;
 
     private List<Mat> corners;
     private Mat ids;

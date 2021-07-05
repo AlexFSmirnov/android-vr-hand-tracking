@@ -8,11 +8,13 @@ using OpenCVForUnity.UnityUtils;
 
 public class YoloTracker : HandTracker
 {
-    // TODO: Move common fields to the HandTracker class
     private bool isInitialized = false;
     private Camera targetCamera;
-
+    private int frameWidth;
+    private int frameHeight;
     private Mat rgbMat;
+
+    private float handZDistance = 0.5f;
 
     private Net yoloNet;
     private Size yoloInputSize;
@@ -47,6 +49,8 @@ public class YoloTracker : HandTracker
     public void Initialize(int frameWidth, int frameHeight, Camera camera)
     {
         targetCamera = camera;
+        this.frameWidth = frameWidth;
+        this.frameHeight = frameHeight;
         rgbMat = new Mat();
 
         string configFilepath = Utils.getFilePath("dnn/" + configFilename);
@@ -103,21 +107,33 @@ public class YoloTracker : HandTracker
         yoloNet.forward(outputs, outBlobNames);
 
         // Get the predicted hand positions.
-        // TODO: Improve the function to actually return the hand positions.
-        postprocess();
+        List<(Point, float)> pointsWithConfidence = GetPredictedPointsWithConfidence(drawPreview);
 
-        foreach (var output in outputs)
+        foreach (var (centerPoint, confidence) in pointsWithConfidence)
         {
-            output.Dispose();
+            var screenCenterPoint = ScreenUtils.GetScreenPointFromFramePoint(centerPoint, frameWidth, frameHeight);
+
+            var handWorldPosition = targetCamera.ScreenToWorldPoint(new Vector3(screenCenterPoint.x, screenCenterPoint.y, handZDistance));
+
+            hands.Add(new HandTransform(handWorldPosition));
+
+            if (drawPreview)
+            {
+                Imgproc.circle(rgbaMat, centerPoint, 5, new Scalar(0, 255, 0, 255), 2);
+            }
         }
+
 
         if (drawPreview)
         {
             Imgproc.cvtColor(rgbMat, rgbaMat, Imgproc.COLOR_RGB2RGBA);
         }
-    }
 
-    public void SetThresholdColors(Scalar lower, Scalar upper) { }
+        foreach (var output in outputs)
+        {
+            output.Dispose();
+        }
+    }
 
     private List<string> getOutputsNames(Net net)
     {
@@ -147,8 +163,7 @@ public class YoloTracker : HandTracker
         return types;
     }
 
-    // TODO Rewrite this stuff
-    protected virtual void postprocess()
+    private List<(Point, float)> GetPredictedPointsWithConfidence(bool drawPreview)
     {
         MatOfInt outLayers = yoloNet.getUnconnectedOutLayers();
         string outLayerType = outBlobTypes[0];
@@ -156,8 +171,6 @@ public class YoloTracker : HandTracker
         List<int> classIdsList = new List<int>();
         List<float> confidencesList = new List<float>();
         List<Rect2d> boxesList = new List<Rect2d>();
-
-        Debug.Log(outputs.Count);
 
         for (int i = 0; i < outputs.Count; ++i)
         {
@@ -239,33 +252,59 @@ public class YoloTracker : HandTracker
             confidencesList = nmsConfidencesList;
         }
 
-        for (int idx = 0; idx < boxesList.Count; ++idx)
+        // Get a list of center points from detected boxes.
+        List<(Point, float)> pointsWithConfidence = new List<(Point, float)>();
+        for (int i = 0; i < boxesList.Count; ++i)
         {
-            Rect2d box = boxesList[idx];
-            // TODO: Update the function to have better naming and only draw required stuff.
-            drawPred(classIdsList[idx], confidencesList[idx], box.x, box.y, box.x + box.width, box.y + box.height, rgbMat);
-        }
-    }
+            Rect2d box = boxesList[i];
+            Point centerPoint = new Point((double)(box.x + box.width / 2), (double)(box.y + box.height / 2));
+            float confidence = confidencesList[i];
 
-    protected virtual void drawPred(int classId, float conf, double left, double top, double right, double bottom, Mat frame)
-    {
-        Imgproc.rectangle(frame, new Point(left, top), new Point(right, bottom), new Scalar(0, 255, 0, 255), 2);
+            pointsWithConfidence.Add((centerPoint, confidence));
 
-        string label = conf.ToString();
-        if (classNames != null && classNames.Count != 0)
-        {
-            if (classId < (int)classNames.Count)
+            if (drawPreview)
             {
-                label = classNames[classId] + ": " + label;
+                drawBox(box, confidence, rgbMat);
             }
         }
+
+        // Sort points in order of decreasing confidence.
+        pointsWithConfidence.Sort(ComparePointsWithConfidence);
+
+        return pointsWithConfidence;
+    }
+
+    private void drawBox(Rect2d box, float confidence, Mat frame)
+    {
+        double left = box.x;
+        double top = box.y;
+        double right = box.x + box.width;
+        double bottom = box.y + box.height;
+
+        Imgproc.rectangle(frame, new Point(left, top), new Point(right, bottom), new Scalar(0, 255, 0, 255), 2);
+
+        string label = confidence.ToString();
 
         int[] baseLine = new int[1];
         Size labelSize = Imgproc.getTextSize(label, Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, 1, baseLine);
 
         top = Mathf.Max((float)top, (float)labelSize.height);
-        Imgproc.rectangle(frame, new Point(left, top - labelSize.height),
-            new Point(left + labelSize.width, top + baseLine[0]), Scalar.all(255), Core.FILLED);
+        Imgproc.rectangle(frame, new Point(left, top - labelSize.height), new Point(left + labelSize.width, top + baseLine[0]), Scalar.all(255), Core.FILLED);
         Imgproc.putText(frame, label, new Point(left, top), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 0, 255));
     }
+
+    private int ComparePointsWithConfidence((Point, float) first, (Point, float) second)
+    {
+        var (_point1, confidence1) = first;
+        var (_point2, confidence2) = second;
+
+        if (confidence1 == confidence2)
+            return 0;
+        else if (confidence1 > confidence2)
+            return -1;
+        else
+            return 1;
+    }
+
+    public void SetThresholdColors(Scalar lower, Scalar upper) { }
 }
