@@ -54,12 +54,13 @@
      <Compile Include="Assets\ExampleAssets\Scripts\ARFeatheredPlaneMeshVisualizer.cs" />
      <Compile Include="Assets\Scripts\HandTrackers\ThresholdTracker.cs" />
      <Compile Include="Assets\Scripts\CameraMatProviders\MobileCameraMatProvider.cs" />
+     <Compile Include="Assets\Scripts\HandTrackers\CamshiftTracker.cs" />
      <Compile Include="Assets\Scripts\Utils\RaycastWorldInstantiator.cs" />
      <Compile Include="Assets\Scripts\Old\HandPositionEstimatorWebcam.cs" />
      <Compile Include="Assets\Scripts\Utils\HandTransform.cs" />
      <Compile Include="Assets\Scripts\StageManager.cs" />
      <Compile Include="Assets\Scripts\HandPositionEstimator.cs" />
-     <Compile Include="Assets\Scripts\HandTrackers\CamshiftTracker.cs" />
+     <Compile Include="Assets\Scripts\Utils\FpsMonitor.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />

@@ -3,7 +3,7 @@ using UnityEngine.XR.ARFoundation;
 
 public class StageManager : MonoBehaviour
 {
-    public enum Stage { Init, ThresholdColorPicker, WorldInstantiation, Main };
+    public enum Stage { Init, ColorPicker, WorldInstantiation, Main };
     private Stage stage;
 
     public bool isDebug = true;
@@ -16,6 +16,11 @@ public class StageManager : MonoBehaviour
     public void SetStage(Stage stage)
     {
         this.stage = stage;
+
+        if (stage == Stage.WorldInstantiation)
+        {
+            GameObject.Find("AR").transform.Find("AR Session Origin").GetComponent<ARPlaneManager>().enabled = true;
+        }
     }
 
     public Stage GetStage()
@@ -33,9 +38,9 @@ public class StageManager : MonoBehaviour
             case HandPositionEstimator.HandTrackerType.Yolo3Tiny:
                 // Skip world instantiation for desktop and standalone.
                 #if UNITY_EDITOR || UNITY_STANDALONE
-                stage = Stage.Main;
+                SetStage(Stage.Main);
                 #else
-                stage = Stage.WorldInstantiation;
+                SetStage(Stage.WorldInstantiation);
                 #endif
                 break;
 
@@ -43,7 +48,7 @@ public class StageManager : MonoBehaviour
             case HandPositionEstimator.HandTrackerType.ThresholdLab:
             case HandPositionEstimator.HandTrackerType.CamshiftHSV:
             case HandPositionEstimator.HandTrackerType.CamshiftLab:
-                stage = Stage.ThresholdColorPicker;
+                SetStage(Stage.ColorPicker);
                 break;
         }
     }
@@ -52,23 +57,18 @@ public class StageManager : MonoBehaviour
     {
         switch (stage)
         {
-            case Stage.ThresholdColorPicker:
+            case Stage.ColorPicker:
                 // Skip world instantiation for desktop and standalone.
                 #if UNITY_EDITOR || UNITY_STANDALONE
-                stage = Stage.Main;
+                SetStage(Stage.Main);
                 #else
-                stage = Stage.WorldInstantiation;
+                SetStage(Stage.WorldInstantiation);
                 #endif
                 break;
             
             case Stage.WorldInstantiation:
-                stage = Stage.Main;
+                SetStage(Stage.Main);
                 break;
-        }
-
-        if (stage == Stage.WorldInstantiation)
-        {
-            GameObject.Find("AR").transform.Find("AR Session Origin").GetComponent<ARPlaneManager>().enabled = true;
         }
     }
 }

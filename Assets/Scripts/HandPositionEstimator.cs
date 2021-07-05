@@ -72,6 +72,11 @@ public class HandPositionEstimator : MonoBehaviour
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
         previewImage = previewCanvas.transform.Find("PreviewImage").GetComponent<RawImage>();
         colorPickerImage = previewCanvas.transform.Find("ColorPickerImage").GetComponent<Image>();
+
+        if (stageManager.isDebug)
+        {
+            gameObject.GetComponent<FpsMonitor>().Run();
+        }
     }
 
     void OnDestroy()
@@ -99,7 +104,7 @@ public class HandPositionEstimator : MonoBehaviour
             return;
 
         // If using a tracker that requires a color picker, update it.
-        if (stageManager.GetStage() == StageManager.Stage.ThresholdColorPicker)
+        if (stageManager.GetStage() == StageManager.Stage.ColorPicker)
         {
             UpdateColorPicker(rgbaFrameMat);
         }
@@ -111,7 +116,7 @@ public class HandPositionEstimator : MonoBehaviour
             return;
         }
 
-        bool drawPreview = stageManager.isDebug || stageManager.GetStage() == StageManager.Stage.ThresholdColorPicker;
+        bool drawPreview = stageManager.isDebug || stageManager.GetStage() == StageManager.Stage.ColorPicker;
 
         handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, drawPreview);
 
