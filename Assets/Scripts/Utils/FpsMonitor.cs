@@ -16,7 +16,7 @@ public class FpsMonitor : MonoBehaviour
 
     void Start()
     {
-        text = gameObject.transform.Find("PreviewCanvas/FpsText").GetComponent<TextMeshProUGUI>();
+        text = gameObject.transform.Find("FpsText").GetComponent<TextMeshProUGUI>();
     }
 
     void Update()

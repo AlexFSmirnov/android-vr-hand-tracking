@@ -115,7 +115,10 @@ public class CamshiftTracker : HandTracker
         hands.Add(new HandTransform(handWorldPosition));
 
         if (drawPreview)
+        {
+            Imgproc.circle(rgbaMat, rect.center, 5, new Scalar(0, 255, 0, 255), 2);
             DrawRotatedRect(rect, rgbaMat);
+        }
     }
 
     private void UpdateRoi(Mat rgbaMat, bool drawPreview)

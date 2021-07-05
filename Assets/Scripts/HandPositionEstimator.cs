@@ -7,12 +7,11 @@ using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
 {
-    public enum HandTrackerType { ArUco, ThresholdHSV, ThresholdLab, CamshiftHSV, CamshiftLab, OpenPose, Yolo3, Yolo3Tiny };
-    public HandTrackerType handTrackerType = HandTrackerType.ArUco;
-
     public GameObject handObj;
 
     private GameManager gameManager;
+    private GameManager.HandTrackerType handTrackerType;
+
     private Camera targetCamera;
     private CameraMatProvider cameraMatProvider;
     private HandTracker handTracker;
@@ -33,7 +32,9 @@ public class HandPositionEstimator : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        gameManager.SetFirstStage(handTrackerType);
+        handTrackerType = gameManager.GetHandTrackerType();
+
+        gameManager.SetFirstVRStage();
 
         #if UNITY_EDITOR || UNITY_STANDALONE
         targetCamera = GameObject.Find("DesktopDebug/Camera").GetComponent<Camera>();
@@ -45,28 +46,28 @@ public class HandPositionEstimator : MonoBehaviour
 
         switch (handTrackerType)
         {
-            case HandTrackerType.ArUco:
+            case GameManager.HandTrackerType.ArUco:
                 handTracker = new ArUcoTracker();
                 break;
-            case HandTrackerType.ThresholdHSV:
+            case GameManager.HandTrackerType.ThresholdHSV:
                 handTracker = new ThresholdTracker(useLab: false);
                 break;
-            case HandTrackerType.ThresholdLab:
+            case GameManager.HandTrackerType.ThresholdLab:
                 handTracker = new ThresholdTracker(useLab: true);
                 break;
-            case HandTrackerType.CamshiftHSV:
+            case GameManager.HandTrackerType.CamshiftHSV:
                 handTracker = new CamshiftTracker(useLab: false);
                 break;
-            case HandTrackerType.CamshiftLab:
+            case GameManager.HandTrackerType.CamshiftLab:
                 handTracker = new CamshiftTracker(useLab: true);
                 break;
-            case HandTrackerType.OpenPose:
+            case GameManager.HandTrackerType.OpenPose:
                 handTracker = new OpenPoseTracker();
                 break;
-            case HandTrackerType.Yolo3:
+            case GameManager.HandTrackerType.Yolo3:
                 handTracker = new YoloTracker(tiny: false);
                 break;
-            case HandTrackerType.Yolo3Tiny:
+            case GameManager.HandTrackerType.Yolo3Tiny:
                 handTracker = new YoloTracker(tiny: true);
                 break;
         }
@@ -77,11 +78,6 @@ public class HandPositionEstimator : MonoBehaviour
 
         splitscreenLeftEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/LeftEyeMask/LeftEyePreviewImage").GetComponent<RawImage>();
         splitscreenRightEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/RightEyeMask/RightEyePreviewImage").GetComponent<RawImage>();
-
-        if (gameManager.isDebug)
-        {
-            gameObject.GetComponent<FpsMonitor>().Run();
-        }
     }
 
     void OnDestroy()
@@ -121,7 +117,7 @@ public class HandPositionEstimator : MonoBehaviour
             return;
         }
 
-        bool drawPreview = gameManager.isDebug || gameManager.GetStage() == GameManager.Stage.ColorPicker;
+        bool drawPreview = gameManager.GetIsDebug() || gameManager.GetStage() == GameManager.Stage.ColorPicker;
 
         handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, drawPreview);
 
@@ -145,10 +141,6 @@ public class HandPositionEstimator : MonoBehaviour
             splitscreenLeftEyePreviewImage.texture = previewTexture;
             splitscreenRightEyePreviewImage.texture = previewTexture;
         }
-        else
-        {
-            previewImage.color = new Color(0, 0, 0, 0);
-        }
     }
 
     private void UpdateColorPicker(Mat rgbaMat)
@@ -164,9 +156,9 @@ public class HandPositionEstimator : MonoBehaviour
             var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaMat.width(), rgbaMat.height());
             thresholdColorRange = ColorUtils.GetColorRangeFromCircle(frameSelectedPoint, colorPickerRadius, rgbaMat);
 
-            if (handTrackerType == HandTrackerType.ThresholdHSV || handTrackerType == HandTrackerType.CamshiftHSV)
+            if (handTrackerType == GameManager.HandTrackerType.ThresholdHSV || handTrackerType == GameManager.HandTrackerType.CamshiftHSV)
                 handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
-            else if (handTrackerType == HandTrackerType.ThresholdLab || handTrackerType == HandTrackerType.CamshiftLab)
+            else if (handTrackerType == GameManager.HandTrackerType.ThresholdLab || handTrackerType == GameManager.HandTrackerType.CamshiftLab)
                 handTracker.SetThresholdColors(thresholdColorRange.labLower, thresholdColorRange.labUpper);
 
             colorPickerImage.color = new Color(
