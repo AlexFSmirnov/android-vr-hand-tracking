@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/YOLO-VR-Test.unity
-    guid: 9a59afbe27262774f926c683acc80291
+    path: Assets/Scenes/Splitscreen-test.unity
+    guid: c28ca9fa8b2a558458a865ba1f2dc65f
   m_configObjects:
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: 744b813df90924c169af73489b8325de,
       type: 2}

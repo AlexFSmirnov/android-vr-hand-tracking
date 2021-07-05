@@ -19,6 +19,8 @@ public class HandPositionEstimator : MonoBehaviour
 
     private GameObject previewCanvas;
     private RawImage previewImage;
+    private RawImage splitscreenLeftEyePreviewImage;
+    private RawImage splitscreenRightEyePreviewImage;
     private Image colorPickerImage;
 
     private Mat rgbaFrameMat;
@@ -72,6 +74,9 @@ public class HandPositionEstimator : MonoBehaviour
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
         previewImage = previewCanvas.transform.Find("PreviewImage").GetComponent<RawImage>();
         colorPickerImage = previewCanvas.transform.Find("ColorPickerImage").GetComponent<Image>();
+
+        splitscreenLeftEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/LeftEyeMask/LeftEyePreviewImage").GetComponent<RawImage>();
+        splitscreenRightEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/RightEyeMask/RightEyePreviewImage").GetComponent<RawImage>();
 
         if (stageManager.isDebug)
         {
@@ -137,6 +142,8 @@ public class HandPositionEstimator : MonoBehaviour
 
             Utils.fastMatToTexture2D(rgbaFrameMat, previewTexture);
             previewImage.texture = previewTexture;
+            splitscreenLeftEyePreviewImage.texture = previewTexture;
+            splitscreenRightEyePreviewImage.texture = previewTexture;
         }
         else
         {
