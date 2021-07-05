@@ -2,20 +2,20 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    private StageManager stageManager;
+    private GameManager gameManager;
 
     private GameObject colorPickerStage;
 
     void Start()
     {
-        stageManager = GameObject.Find("StageManager").GetComponent<StageManager>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         colorPickerStage = gameObject.transform.Find("ColorPickerStage").gameObject;
     }
 
     public void OnColorPickerContinueButtonClick()
     {
-        stageManager.GoToNextStage();
+        gameManager.GoToNextStage();
         colorPickerStage.SetActive(false);
     }
 }

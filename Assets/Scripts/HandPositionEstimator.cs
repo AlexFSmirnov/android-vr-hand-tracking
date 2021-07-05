@@ -12,7 +12,7 @@ public class HandPositionEstimator : MonoBehaviour
 
     public GameObject handObj;
 
-    private StageManager stageManager;
+    private GameManager gameManager;
     private Camera targetCamera;
     private CameraMatProvider cameraMatProvider;
     private HandTracker handTracker;
@@ -32,8 +32,8 @@ public class HandPositionEstimator : MonoBehaviour
 
     void Start()
     {
-        stageManager = GameObject.Find("StageManager").GetComponent<StageManager>();
-        stageManager.SetFirstStage(handTrackerType);
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gameManager.SetFirstStage(handTrackerType);
 
         #if UNITY_EDITOR || UNITY_STANDALONE
         targetCamera = GameObject.Find("DesktopDebug/Camera").GetComponent<Camera>();
@@ -78,7 +78,7 @@ public class HandPositionEstimator : MonoBehaviour
         splitscreenLeftEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/LeftEyeMask/LeftEyePreviewImage").GetComponent<RawImage>();
         splitscreenRightEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/RightEyeMask/RightEyePreviewImage").GetComponent<RawImage>();
 
-        if (stageManager.isDebug)
+        if (gameManager.isDebug)
         {
             gameObject.GetComponent<FpsMonitor>().Run();
         }
@@ -109,7 +109,7 @@ public class HandPositionEstimator : MonoBehaviour
             return;
 
         // If using a tracker that requires a color picker, update it.
-        if (stageManager.GetStage() == StageManager.Stage.ColorPicker)
+        if (gameManager.GetStage() == GameManager.Stage.ColorPicker)
         {
             UpdateColorPicker(rgbaFrameMat);
         }
@@ -121,11 +121,11 @@ public class HandPositionEstimator : MonoBehaviour
             return;
         }
 
-        bool drawPreview = stageManager.isDebug || stageManager.GetStage() == StageManager.Stage.ColorPicker;
+        bool drawPreview = gameManager.isDebug || gameManager.GetStage() == GameManager.Stage.ColorPicker;
 
         handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, drawPreview);
 
-        if (stageManager.GetStage() == StageManager.Stage.Main)
+        if (gameManager.GetStage() == GameManager.Stage.Main)
         {
 
             // TODO: Improve hand objects - should support at least 2.

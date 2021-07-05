@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-public class StageManager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     public enum Stage { Init, ColorPicker, WorldInstantiation, Main };
     private Stage stage;

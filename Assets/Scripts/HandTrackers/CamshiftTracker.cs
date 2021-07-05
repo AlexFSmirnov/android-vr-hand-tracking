@@ -22,9 +22,6 @@ public class CamshiftTracker : HandTracker
     private Scalar upperThresholdColor = null;
 
     private float handZDistance = 0.5f;
-    private int maxContours = 2;
-    private float minContourArea = 100f;
-    private float minContourAreaFraction = 0.2f;
 
     private bool roiNeedsRecalculating = true;
     private OpenCVForUnity.CoreModule.Rect initRoiRect;

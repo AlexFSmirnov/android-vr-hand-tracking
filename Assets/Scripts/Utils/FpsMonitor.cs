@@ -21,6 +21,12 @@ public class FpsMonitor : MonoBehaviour
 
     void Update()
     {
+        if (!isEnabled)
+        {
+            Stop();
+            return;
+        }
+
         ++framesSinceLastSecond;
         ++framesSinceStart;
 
@@ -46,6 +52,14 @@ public class FpsMonitor : MonoBehaviour
 
         lastSecondTimestamp = Time.time;
         startTimestamp = Time.time;
+    }
+
+    public void Stop()
+    {
+        isEnabled = false;
+        text.color = new Color(0, 0, 0, 0);
+        framesSinceLastSecond = 0;
+        framesSinceStart = 0;
     }
 
     private void UpdateFpsText()
