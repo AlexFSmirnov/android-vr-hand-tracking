@@ -10,8 +10,9 @@ public class ThresholdTracker : HandTracker
     private int frameWidth;
     private int frameHeight;
 
+    private bool useLab = false;
     private Mat rgbMat;
-    private Mat hsvMat;
+    private Mat hsvOrLabMat;
 
     private Mat handMask;
 
@@ -23,6 +24,11 @@ public class ThresholdTracker : HandTracker
     private float minContourArea = 100f;
     private float minContourAreaFraction = 0.2f;
 
+    public ThresholdTracker(bool useLab = false)
+    {
+        this.useLab = useLab;
+    }
+
     public void Initialize(int frameWidth, int frameHeight, Camera camera)
     {
         targetCamera = camera;
@@ -31,7 +37,7 @@ public class ThresholdTracker : HandTracker
         this.frameHeight = frameHeight;
 
         rgbMat = new Mat();
-        hsvMat = new Mat();
+        hsvOrLabMat = new Mat();
 
         handMask = new Mat();
     }
@@ -49,10 +55,10 @@ public class ThresholdTracker : HandTracker
             rgbMat = null;
         }
 
-        if (hsvMat != null)
+        if (hsvOrLabMat != null)
         {
-            hsvMat.Dispose();
-            hsvMat = null;
+            hsvOrLabMat.Dispose();
+            hsvOrLabMat = null;
         }
 
         if (handMask != null)
@@ -101,13 +107,17 @@ public class ThresholdTracker : HandTracker
     private List<MatOfPoint> GetContoursFromImage(Mat rgbaMat)
     {
         Imgproc.cvtColor(rgbaMat, rgbMat, Imgproc.COLOR_RGBA2RGB);
-        Imgproc.cvtColor(rgbMat, hsvMat, Imgproc.COLOR_RGB2HSV);
+
+        if (useLab)
+            Imgproc.cvtColor(rgbMat, hsvOrLabMat, Imgproc.COLOR_RGB2Lab);
+        else
+            Imgproc.cvtColor(rgbMat, hsvOrLabMat, Imgproc.COLOR_RGB2HSV);
 
         // Blur the image for better thesholding.
-        Imgproc.blur(hsvMat, hsvMat, new Size(3, 3));
+        Imgproc.blur(hsvOrLabMat, hsvOrLabMat, new Size(3, 3));
 
         // Mask all colors between the provided HSV range.
-        Core.inRange(hsvMat, lowerThresholdColor, upperThresholdColor, handMask);
+        Core.inRange(hsvOrLabMat, lowerThresholdColor, upperThresholdColor, handMask);
 
         // Dilate the mask for the same purposes as bluring.
         Imgproc.dilate(handMask, handMask, new Mat());

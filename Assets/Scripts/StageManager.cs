@@ -39,7 +39,10 @@ public class StageManager : MonoBehaviour
                 #endif
                 break;
 
-            case HandPositionEstimator.HandTrackerType.Threshold:
+            case HandPositionEstimator.HandTrackerType.ThresholdHSV:
+            case HandPositionEstimator.HandTrackerType.ThresholdLab:
+            case HandPositionEstimator.HandTrackerType.CamshiftHSV:
+            case HandPositionEstimator.HandTrackerType.CamshiftLab:
                 stage = Stage.ThresholdColorPicker;
                 break;
         }

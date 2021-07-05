@@ -7,7 +7,7 @@ using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
 {
-    public enum HandTrackerType { ArUco, Threshold, OpenPose, Yolo3, Yolo3Tiny };
+    public enum HandTrackerType { ArUco, ThresholdHSV, ThresholdLab, CamshiftHSV, CamshiftLab, OpenPose, Yolo3, Yolo3Tiny };
     public HandTrackerType handTrackerType = HandTrackerType.ArUco;
 
     public GameObject handObj;
@@ -41,25 +41,32 @@ public class HandPositionEstimator : MonoBehaviour
         cameraMatProvider = GameObject.Find("CameraMatProviders/MobileContainer/MobileCameraMatProvider").GetComponent<CameraMatProvider>();
         #endif
 
-        if (handTrackerType == HandTrackerType.ArUco)
+        switch (handTrackerType)
         {
-            handTracker = new ArUcoTracker();
-        }
-        else if (handTrackerType == HandTrackerType.Threshold)
-        {
-            handTracker = new ThresholdTracker();
-        }
-        else if (handTrackerType == HandTrackerType.OpenPose)
-        {
-            handTracker = new OpenPoseTracker();
-        }
-        else if (handTrackerType == HandTrackerType.Yolo3)
-        {
-            handTracker = new YoloTracker(tiny: false);
-        }
-        else if (handTrackerType == HandTrackerType.Yolo3Tiny)
-        {
-            handTracker = new YoloTracker(tiny: true);
+            case HandTrackerType.ArUco:
+                handTracker = new ArUcoTracker();
+                break;
+            case HandTrackerType.ThresholdHSV:
+                handTracker = new ThresholdTracker(useLab: false);
+                break;
+            case HandTrackerType.ThresholdLab:
+                handTracker = new ThresholdTracker(useLab: true);
+                break;
+            case HandTrackerType.CamshiftHSV:
+                handTracker = new CamshiftTracker(useLab: false);
+                break;
+            case HandTrackerType.CamshiftLab:
+                handTracker = new CamshiftTracker(useLab: true);
+                break;
+            case HandTrackerType.OpenPose:
+                handTracker = new OpenPoseTracker();
+                break;
+            case HandTrackerType.Yolo3:
+                handTracker = new YoloTracker(tiny: false);
+                break;
+            case HandTrackerType.Yolo3Tiny:
+                handTracker = new YoloTracker(tiny: true);
+                break;
         }
 
         previewCanvas = gameObject.transform.Find("PreviewCanvas").gameObject;
@@ -91,8 +98,8 @@ public class HandPositionEstimator : MonoBehaviour
         if (rgbaFrameMat == null)
             return;
 
-        // If using the threshold marker, update the color picker position and color.
-        if (handTrackerType == HandTrackerType.Threshold && stageManager.GetStage() == StageManager.Stage.ThresholdColorPicker)
+        // If using a tracker that requires a color picker, update it.
+        if (stageManager.GetStage() == StageManager.Stage.ThresholdColorPicker)
         {
             UpdateColorPicker(rgbaFrameMat);
         }
@@ -145,7 +152,10 @@ public class HandPositionEstimator : MonoBehaviour
             var frameSelectedPoint = ScreenUtils.GetFramePointFromScreenPoint(selectedPoint, rgbaMat.width(), rgbaMat.height());
             thresholdColorRange = ColorUtils.GetColorRangeFromCircle(frameSelectedPoint, colorPickerRadius, rgbaMat);
 
-            handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
+            if (handTrackerType == HandTrackerType.ThresholdHSV || handTrackerType == HandTrackerType.CamshiftHSV)
+                handTracker.SetThresholdColors(thresholdColorRange.hsvLower, thresholdColorRange.hsvUpper);
+            else if (handTrackerType == HandTrackerType.ThresholdLab || handTrackerType == HandTrackerType.CamshiftLab)
+                handTracker.SetThresholdColors(thresholdColorRange.labLower, thresholdColorRange.labUpper);
 
             colorPickerImage.color = new Color(
                 (float)thresholdColorRange.rgbAverage.val[0] / 255,
