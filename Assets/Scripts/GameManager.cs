@@ -165,6 +165,11 @@ public class GameManager : MonoBehaviour
         UpdateCameraPreviewTexturesVisibility();
     }
 
+    public bool ShouldShowPreview()
+    {
+        return isDebug || (stage == Stage.ColorPicker || stage == Stage.WorldInstantiation);
+    }
+
     public bool GetUseSplitscreen()
     {
         return useSplitscreen;
@@ -178,9 +183,7 @@ public class GameManager : MonoBehaviour
 
     private void UpdateCameraPreviewTexturesVisibility()
     {
-        bool previewEnabled = isDebug || stage == Stage.ColorPicker;
-
-        var cameraPreviewImageColor = previewEnabled ? new Color(255, 255, 255, 0.5f) : new Color(0, 0, 0, 0);
+        var cameraPreviewImageColor = ShouldShowPreview() ? new Color(255, 255, 255, 0.5f) : new Color(0, 0, 0, 0);
         fullscreenPreviewImage.color = cameraPreviewImageColor;
         splitscreenLeftEyePreviewImage.color = cameraPreviewImageColor;
         splitscreenRightEyePreviewImage.color = cameraPreviewImageColor;

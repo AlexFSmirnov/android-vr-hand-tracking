@@ -30,16 +30,16 @@ public class FpsMonitor : MonoBehaviour
         ++framesSinceLastSecond;
         ++framesSinceStart;
 
-        if (Time.time - lastSecondTimestamp > 1)
+        if (Time.unscaledTime - lastSecondTimestamp > 1)
         {
-            fps = framesSinceLastSecond / (Time.time - lastSecondTimestamp);
-            lastSecondTimestamp = Time.time;
+            fps = framesSinceLastSecond / (Time.unscaledTime - lastSecondTimestamp);
+            lastSecondTimestamp = Time.unscaledTime;
             framesSinceLastSecond = 0;
         }
 
-        if (Time.time - startTimestamp > 60 && firstMinuteFps < 0)
+        if (Time.unscaledTime - startTimestamp > 60 && firstMinuteFps < 0)
         {
-            firstMinuteFps = framesSinceStart / (Time.time - startTimestamp);
+            firstMinuteFps = framesSinceStart / (Time.unscaledTime - startTimestamp);
         }
 
         UpdateFpsText();
@@ -50,8 +50,8 @@ public class FpsMonitor : MonoBehaviour
         isEnabled = true;
         text.color = new Color(255, 255, 255, 255);
 
-        lastSecondTimestamp = Time.time;
-        startTimestamp = Time.time;
+        lastSecondTimestamp = Time.unscaledTime;
+        startTimestamp = Time.unscaledTime;
     }
 
     public void Stop()
@@ -60,6 +60,8 @@ public class FpsMonitor : MonoBehaviour
         text.color = new Color(0, 0, 0, 0);
         framesSinceLastSecond = 0;
         framesSinceStart = 0;
+        fps = -1;
+        firstMinuteFps = -1;
     }
 
     private void UpdateFpsText()

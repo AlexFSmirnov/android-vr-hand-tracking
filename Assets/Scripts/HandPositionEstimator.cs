@@ -117,7 +117,7 @@ public class HandPositionEstimator : MonoBehaviour
             return;
         }
 
-        bool drawPreview = gameManager.GetIsDebug() || gameManager.GetStage() == GameManager.Stage.ColorPicker;
+        bool drawPreview = gameManager.ShouldShowPreview();
 
         handTracker.GetHandPositions(rgbaFrameMat, out List<HandTransform> hands, drawPreview);
 
