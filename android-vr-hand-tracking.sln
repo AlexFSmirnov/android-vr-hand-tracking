@@ -5,9 +5,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnoxSoftware.OpenCVForUnity
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{8ff48b15-9d83-a6ec-bf27-3f793cfbed9b}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnoxSoftware.OpenCVForUnity.Editor", "EnoxSoftware.OpenCVForUnity.Editor.csproj", "{97a55c04-0948-e52b-812e-833640424dd8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{62e2a4ad-447e-1c0e-0ac6-da48779ec96f}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnoxSoftware.OpenCVForUnity.Editor", "EnoxSoftware.OpenCVForUnity.Editor.csproj", "{97a55c04-0948-e52b-812e-833640424dd8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,10 +18,10 @@ Global
 		{30458e32-15b9-3186-841a-ba16ad235c40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ff48b15-9d83-a6ec-bf27-3f793cfbed9b}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8ff48b15-9d83-a6ec-bf27-3f793cfbed9b}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97a55c04-0948-e52b-812e-833640424dd8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97a55c04-0948-e52b-812e-833640424dd8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62e2a4ad-447e-1c0e-0ac6-da48779ec96f}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{62e2a4ad-447e-1c0e-0ac6-da48779ec96f}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97a55c04-0948-e52b-812e-833640424dd8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97a55c04-0948-e52b-812e-833640424dd8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
