@@ -6,6 +6,20 @@ using OpenCVForUnity.ArucoModule;
 using OpenCVForUnity.Calib3dModule;
 using OpenCVForUnity.UnityUtils;
 
+class HandTransformWithTimestamp
+{
+    public HandTransform handTransform;
+    public float timestamp;
+    public bool isTrusted;
+
+    public HandTransformWithTimestamp(HandTransform handTransform, float timestamp, bool isTrusted)
+    {
+        this.handTransform = handTransform;
+        this.timestamp = timestamp;
+        this.isTrusted = isTrusted;
+    }
+}
+
 public class ArUcoTracker : HandTracker
 {
     private bool isInitialized = false;
@@ -21,6 +35,16 @@ public class ArUcoTracker : HandTracker
 
     private Mat camMatrix;
     private Mat distCoeffs;
+
+    private HashSet<int> idsDetectedThisFrame = new HashSet<int>();
+
+    // A map from marker id to previous detected hand transforms
+    private Dictionary<int, Queue<HandTransformWithTimestamp>> previousHandTransforms = new Dictionary<int, Queue<HandTransformWithTimestamp>>();
+
+    // For each hand id contains the current number of untrusted predictions.
+    private Dictionary<int, int> untrustedPredictions = new Dictionary<int, int>();
+    private int maxUntrustedPredictions = 10;
+
 
     public ArUcoTracker(int dictId = Aruco.DICT_4X4_50)
     {
@@ -109,13 +133,21 @@ public class ArUcoTracker : HandTracker
         var tvecs = new Mat();
         Aruco.estimatePoseSingleMarkers(corners, 0.03f, camMatrix, distCoeffs, rvecs, tvecs);
 
+        idsDetectedThisFrame.Clear();
+
+        // Going through all detected markers and adding them to the respective previous position queues.
         for (int i = 0; i < ids.total(); i++)
         {
+            int markerId = (int)ids.get(i, 0)[0];
+            idsDetectedThisFrame.Add(markerId);
+
             using (Mat rvec = new Mat(rvecs, new OpenCVForUnity.CoreModule.Rect(0, i, 1, 1)))
             using (Mat tvec = new Mat(tvecs, new OpenCVForUnity.CoreModule.Rect(0, i, 1, 1)))
             {
                 var markerFrameCenterPoint = GetMarkerFrameCenterPoint(corners[i]);
-                hands.Add(GetHandTransformFromARUcoVecs(rvec, tvec, markerFrameCenterPoint, rgbMat.width(), rgbMat.height()));
+                var handTransform = GetHandTransformFromARUcoVecs(rvec, tvec, markerFrameCenterPoint, rgbaMat.width(), rgbMat.height());
+
+                AddNewHandTransform(handTransform, markerId, isTrusted: true);
 
                 if (drawPreview)
                 {
@@ -125,10 +157,132 @@ public class ArUcoTracker : HandTracker
             }
         }
 
+        // Going through all previously detected ids.
+        foreach (var handId in previousHandTransforms.Keys)
+        {
+            // Trying to predict the position of the non-detected markers based on their previous positions.
+            if (!idsDetectedThisFrame.Contains(handId))
+                PredictNewPosition(handId);
+
+
+            // Using the latest detected/predicted position to draw the hand.
+            if (previousHandTransforms[handId].Count > 0)
+            {
+                var handTransform = previousHandTransforms[handId].ToArray()[previousHandTransforms[handId].Count - 1].handTransform;
+                hands.Add(handTransform);
+            }
+        }
+
         if (drawPreview)
         {
             Aruco.drawDetectedMarkers(rgbMat, corners, ids, new Scalar(0, 255, 0, 255));
             Imgproc.cvtColor(rgbMat, rgbaMat, Imgproc.COLOR_RGB2RGBA);
+        }
+    }
+
+    private void PredictNewPosition(int handId)
+    {
+        // If the amount of untrusted predictions is too high, the accuraccy suffers significantly,
+        // so we remove the marker completely until we get some trusted information on it again.
+        if (untrustedPredictions.ContainsKey(handId) && untrustedPredictions[handId] > maxUntrustedPredictions)
+        {
+            previousHandTransforms[handId].Clear();
+            return;
+        }
+
+        HandTransform predictedTransform;
+        var previousTransformsArr = previousHandTransforms[handId].ToArray();
+
+        // If not enough data to make a prediction, return the latest transform.
+        if (previousTransformsArr.Length < 3)
+        {
+            predictedTransform = previousTransformsArr[previousTransformsArr.Length - 1].handTransform;
+        }
+        // Otherwise, calculate the new position based on the velocity and the acceleration of the hand.
+        else
+        {
+            //          delta1            delta2
+            //  <pos1> - - - - <pos2> - - - - - - - - <pos3>
+            var deltaPosition1 = previousTransformsArr[1].handTransform.position - previousTransformsArr[0].handTransform.position;
+            var deltaPosition2 = previousTransformsArr[2].handTransform.position - previousTransformsArr[1].handTransform.position;
+            Debug.Log("pos1");
+            Debug.Log(previousTransformsArr[2].handTransform.position.ToString("F4"));
+            Debug.Log("pos2");
+            Debug.Log(previousTransformsArr[1].handTransform.position.ToString("F4"));
+
+            var deltaTime1 = previousTransformsArr[1].timestamp - previousTransformsArr[0].timestamp;
+            var deltaTime2 = previousTransformsArr[2].timestamp - previousTransformsArr[1].timestamp;
+            var deltaTime3 = Time.time - previousTransformsArr[2].timestamp;
+            Debug.Log($"time - {deltaTime1} {deltaTime2} {deltaTime3}");
+
+            var distance1 = deltaPosition1.magnitude;
+            var distance2 = deltaPosition2.magnitude;
+            Debug.Log($"distance - {distance1} {distance2}");
+
+            var velocity1 = distance1 / deltaTime1;
+            var velocity2 = distance2 / deltaTime2;
+            Debug.Log($"velocity - {velocity1} {velocity2}");
+
+            var acceleration = velocity1 == 0 ? 1 : velocity2 / velocity1;
+            acceleration = 1;
+
+            var velocity3 = velocity2 * acceleration;
+            var distance3 = velocity3 * deltaTime3;
+
+            var deltaPosition = deltaPosition2.normalized * distance3;
+            var newPosition = previousTransformsArr[2].handTransform.position + deltaPosition;
+
+            predictedTransform = new HandTransform(newPosition);
+        }
+
+        AddNewHandTransform(predictedTransform, handId, isTrusted: false);
+    }
+
+    private void AddNewHandTransform(HandTransform handTransform, int handId, bool isTrusted)
+    {
+        var handTransformWithTimestamp = new HandTransformWithTimestamp(handTransform, Time.time, isTrusted);
+
+        // If no previous positions exist, initialize a queue for them.
+        if (!previousHandTransforms.ContainsKey(handId))
+        {
+            previousHandTransforms.Add(handId, new Queue<HandTransformWithTimestamp>());
+        }
+
+        // Enqueue the current hand transform.
+        if (previousHandTransforms[handId].Count == 0)
+            previousHandTransforms[handId].Enqueue(handTransformWithTimestamp);
+        else if (previousHandTransforms[handId].Count > 0)
+        {
+            var prevPosition = previousHandTransforms[handId].ToArray()[previousHandTransforms[handId].Count - 1].handTransform.position;
+            var deltaPosition = handTransform.position - prevPosition;
+            if (deltaPosition.magnitude > 0.001)
+            {
+                previousHandTransforms[handId].Enqueue(handTransformWithTimestamp);
+            }
+        }
+
+        // Always store at most 3 previoius positions.
+        if (previousHandTransforms[handId].Count > 3)
+        {
+            previousHandTransforms[handId].Dequeue();
+        }
+
+        // Initialize the untrusted predictions count for the current id.
+        if (!untrustedPredictions.ContainsKey(handId))
+        {
+            untrustedPredictions.Add(handId, 0);
+        }
+
+        // If the newest and oldest hand transforms are trusted, reset the untrusted predictions counter.
+        if (previousHandTransforms[handId].Peek().isTrusted && isTrusted)
+        {
+            untrustedPredictions[handId] = 0;
+        }
+
+        // If the current transform is untrusted, increase the untrusted counter.
+        if (!isTrusted)
+        {
+            ++untrustedPredictions[handId];
         }
     }
 
