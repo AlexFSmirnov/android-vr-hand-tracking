@@ -37,9 +37,12 @@ public class GameManager : MonoBehaviour
         stage = Stage.Menu;
     }
 
-    public void SwitchToMainScene()
+    public void SwitchToMainScene(bool empty = false)
     {
-        SceneManager.LoadScene("Main");
+        if (empty)
+            SceneManager.LoadScene("MainEmpty");
+        else
+            SceneManager.LoadScene("Main");
     }
 
     public void SwitchToMenuScene()

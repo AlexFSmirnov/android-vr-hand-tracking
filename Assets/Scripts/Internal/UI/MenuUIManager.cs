@@ -18,6 +18,11 @@ public class MenuUIManager : MonoBehaviour
         gameManager.SwitchToMainScene();
     }
 
+    public void OnStartEmptyButtonClick()
+    {
+        gameManager.SwitchToMainScene(empty: true);
+    }
+
     public void OnTrackerDropdownChanged()
     {
         switch (trackerDropdown.value)
