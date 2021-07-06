@@ -96,7 +96,6 @@ public class ArUcoTracker : HandTracker
         }
     }
 
-    // TODO: GetHandPositions, if no data is available, should interpolate using several previous frames. Extract to HandTracker?
     public void GetHandPositions(Mat rgbaMat, out List<HandTransform> hands, bool drawPreview = false)
     {
         hands = new List<HandTransform>();

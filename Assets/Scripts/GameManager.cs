@@ -11,8 +11,12 @@ public class GameManager : MonoBehaviour
     private HandTrackerType handTrackerType = HandTrackerType.ArUco;
     private Stage stage;
 
+    // TODO: Reset values
+    // TODO: Move new movement controller to Main
+    // TODO: Move new World to Main
+    // TODO: Move new splitscreen settings to main
     private bool isDebug = false;
-    private bool useSplitscreen = true;
+    private bool useSplitscreen = false;
 
     private GameObject uiCanvas;
     private GameObject uiColorPickerStage;
@@ -91,10 +95,8 @@ public class GameManager : MonoBehaviour
         splitscreenLeftEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/LeftEyeMask/LeftEyePreviewImage").GetComponent<RawImage>();
         splitscreenRightEyePreviewImage = GameObject.Find("Splitscreen/SplitscreenCanvas/CameraPreviewImages/RightEyeMask/RightEyePreviewImage").GetComponent<RawImage>();
 
-        if (isDebug)
-        {
-            fpsMonitor.Run();
-        }
+        // Update visibility of debug-related objects.
+        SetIsDebug(isDebug);
 
         switch (handTrackerType)
         {
@@ -157,6 +159,9 @@ public class GameManager : MonoBehaviour
     {
         isDebug = newValue;
 
+        if (!uiCanvas)
+            return;
+
         if (isDebug)
             fpsMonitor.Run();
         else
@@ -178,11 +183,16 @@ public class GameManager : MonoBehaviour
     public void SetUseSplitscreen(bool newValue)
     {
         useSplitscreen = newValue;
-        splitscreenCanvasGroup.alpha = useSplitscreen ? 1 : 0;
+
+        if (splitscreenCanvasGroup)
+            splitscreenCanvasGroup.alpha = useSplitscreen ? 1 : 0;
     }
 
     private void UpdateCameraPreviewTexturesVisibility()
     {
+        if (!fullscreenPreviewImage || !splitscreenLeftEyePreviewImage || !splitscreenRightEyePreviewImage)
+            return;
+
         var cameraPreviewImageColor = ShouldShowPreview() ? new Color(255, 255, 255, 0.5f) : new Color(0, 0, 0, 0);
         fullscreenPreviewImage.color = cameraPreviewImageColor;
         splitscreenLeftEyePreviewImage.color = cameraPreviewImageColor;

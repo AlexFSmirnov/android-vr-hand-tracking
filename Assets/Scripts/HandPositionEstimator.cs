@@ -7,7 +7,7 @@ using OpenCVForUnity.UnityUtils;
 
 public class HandPositionEstimator : MonoBehaviour
 {
-    public GameObject handObj;
+    public GameObject handObjectsContainer;
 
     private GameManager gameManager;
     private GameManager.HandTrackerType handTrackerType;
@@ -123,10 +123,15 @@ public class HandPositionEstimator : MonoBehaviour
 
         if (gameManager.GetStage() == GameManager.Stage.Main)
         {
+            for (int i = 0; i < handObjectsContainer.transform.childCount; ++i)
+            {
+                var newPosition = new Vector3(-10000, -10000, -10000);
+                if (i < hands.Count)
+                {
+                    newPosition = hands[i].position;
+                }
 
-            // TODO: Improve hand objects - should support at least 2.
-            if (hands.Count > 0) {
-                handObj.transform.localPosition = hands[0].position;
+                handObjectsContainer.transform.GetChild(i).localPosition = newPosition;
             }
         }
 
