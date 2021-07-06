@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.XR.ARFoundation;
 
 public class GameManager : MonoBehaviour
@@ -7,9 +8,8 @@ public class GameManager : MonoBehaviour
     public enum HandTrackerType { ArUco, ThresholdHSV, ThresholdLab, CamshiftHSV, CamshiftLab, OpenPose, Yolo3, Yolo3Tiny };
     public enum Stage { Menu, ColorPicker, WorldInstantiation, Main };
 
-    // TODO: Change to private once have UI elements to control this.
-    public HandTrackerType handTrackerType = HandTrackerType.ArUco;
-    public Stage stage;
+    private HandTrackerType handTrackerType = HandTrackerType.ArUco;
+    private Stage stage;
 
     private bool isDebug = false;
     private bool useSplitscreen = true;
@@ -30,6 +30,19 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         stage = Stage.Menu;
+    }
+
+    public void SwitchToMainScene()
+    {
+        SceneManager.LoadScene("Main");
+    }
+
+    public void SwitchToMenuScene()
+    {
+        SetStage(Stage.Menu);
+        SetHandTrackerType(HandTrackerType.ArUco);
+        GameObject.Find("AR").transform.Find("AR Session Origin").GetComponent<ARPlaneManager>().enabled = false;
+        SceneManager.LoadScene("StartMenu");
     }
 
     public void SetStage(Stage stage)
@@ -128,6 +141,11 @@ public class GameManager : MonoBehaviour
     public HandTrackerType GetHandTrackerType()
     {
         return handTrackerType;
+    }
+
+    public void SetHandTrackerType(HandTrackerType newType)
+    {
+        handTrackerType = newType;
     }
 
     public bool GetIsDebug()

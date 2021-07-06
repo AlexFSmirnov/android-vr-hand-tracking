@@ -20,6 +20,9 @@ public class UIManager : MonoBehaviour
         colorPickerStageContainer = gameObject.transform.Find("ColorPickerStage").gameObject;
         debugToggle = settingsContainer.transform.Find("DebugToggle").GetComponent<Toggle>();
         splitscreenToggle = settingsContainer.transform.Find("SplitscreenToggle").GetComponent<Toggle>();
+
+        debugToggle.isOn = gameManager.GetIsDebug();
+        splitscreenToggle.isOn = gameManager.GetUseSplitscreen();
     }
 
     public void OnSettingsButtonClick()
@@ -44,8 +47,7 @@ public class UIManager : MonoBehaviour
 
     public void OnBackToMainMenuButtonClick()
     {
-        // TODO: Implement main menu and stuff.
-        Debug.Log("Back to main menu");
+        gameManager.SwitchToMenuScene();
     }
 
     public void OnColorPickerContinueButtonClick()
