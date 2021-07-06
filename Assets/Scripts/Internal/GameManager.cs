@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     // TODO: Move new movement controller to Main
     // TODO: Move new World to Main
     // TODO: Move new splitscreen settings to main
+    // TODO: Preview canvas full opacity when world instantiation
     private bool isDebug = false;
     private bool useSplitscreen = false;
 
