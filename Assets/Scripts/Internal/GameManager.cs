@@ -11,13 +11,8 @@ public class GameManager : MonoBehaviour
     private HandTrackerType handTrackerType = HandTrackerType.ArUco;
     private Stage stage;
 
-    // TODO: Reset values
-    // TODO: Move new movement controller to Main
-    // TODO: Move new World to Main
-    // TODO: Move new splitscreen settings to main
-    // TODO: Preview canvas full opacity when world instantiation
     private bool isDebug = false;
-    private bool useSplitscreen = false;
+    private bool useSplitscreen = true;
 
     private GameObject uiCanvas;
     private GameObject uiColorPickerStage;
