@@ -36,20 +36,20 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\ColorCorrectionLookupEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\AntialiasingEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\NoiseAndGrainEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\SunShaftsEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\BloomEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\EdgeDetectionEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\CreaseShadingEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\DepthOfFieldDeprecatedEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\TonemappingEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\BloomAndFlaresEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\DepthOfFieldEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\ColorCorrectionCurvesEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\CameraMotionBlurEditor.cs" />
-     <Compile Include="Assets\NatureStarterKit2\Editor\ImageEffects\VignetteAndChromaticAberrationEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\DepthOfFieldEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\NoiseAndGrainEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\ColorCorrectionCurvesEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\BloomEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\ColorCorrectionLookupEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\VignetteAndChromaticAberrationEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\TonemappingEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\BloomAndFlaresEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\EdgeDetectionEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\CreaseShadingEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\AntialiasingEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\CameraMotionBlurEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\SunShaftsEditor.cs" />
+     <Compile Include="Assets\StoreAssets\NatureStarterKit2\Editor\ImageEffects\DepthOfFieldDeprecatedEditor.cs" />
     <Reference Include="UnityEngine">
         <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.2f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
@@ -743,13 +743,13 @@
       <Project>{8ff48b15-9d83-a6ec-bf27-3f793cfbed9b}</Project>
       <Name>Assembly-CSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="EnoxSoftware.OpenCVForUnity.Editor.csproj">
-      <Project>{97a55c04-0948-e52b-812e-833640424dd8}</Project>
-      <Name>EnoxSoftware.OpenCVForUnity.Editor</Name>
-    </ProjectReference>
     <ProjectReference Include="EnoxSoftware.OpenCVForUnity.csproj">
       <Project>{30458e32-15b9-3186-841a-ba16ad235c40}</Project>
       <Name>EnoxSoftware.OpenCVForUnity</Name>
+    </ProjectReference>
+    <ProjectReference Include="EnoxSoftware.OpenCVForUnity.Editor.csproj">
+      <Project>{97a55c04-0948-e52b-812e-833640424dd8}</Project>
+      <Name>EnoxSoftware.OpenCVForUnity.Editor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

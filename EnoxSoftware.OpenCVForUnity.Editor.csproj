@@ -36,9 +36,9 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\OpenCVForUnity\Editor\OpenCVForUnityIOSBuildPostprocessor.cs" />
-     <Compile Include="Assets\OpenCVForUnity\Editor\OpenCVForUnityMenuItem.cs" />
-     <None Include="Assets\OpenCVForUnity\Editor\EnoxSoftware.OpenCVForUnity.Editor.asmdef" />
+     <Compile Include="Assets\StoreAssets\OpenCVForUnity\Editor\OpenCVForUnityIOSBuildPostprocessor.cs" />
+     <Compile Include="Assets\StoreAssets\OpenCVForUnity\Editor\OpenCVForUnityMenuItem.cs" />
+     <None Include="Assets\StoreAssets\OpenCVForUnity\Editor\EnoxSoftware.OpenCVForUnity.Editor.asmdef" />
     <Reference Include="UnityEngine">
         <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.2f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
