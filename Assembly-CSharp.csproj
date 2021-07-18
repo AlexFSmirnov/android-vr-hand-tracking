@@ -45,6 +45,7 @@
      <Compile Include="Assets\Scripts\Internal\Utils\FpsMonitor.cs" />
      <Compile Include="Assets\NatureStarterKit2\Standard Assets\Effects\ImageEffects\Scripts\ContrastEnhance.cs" />
      <Compile Include="Assets\NatureStarterKit2\Standard Assets\Effects\ImageEffects\Scripts\Blur.cs" />
+     <Compile Include="Assets\Scripts\Experiments\VideoMatProvider.cs" />
      <Compile Include="Assets\NatureStarterKit2\Standard Assets\Effects\ImageEffects\Scripts\SunShafts.cs" />
      <Compile Include="Assets\NatureStarterKit2\Standard Assets\Effects\ImageEffects\Scripts\PostEffectsHelper.cs" />
      <Compile Include="Assets\Scripts\Internal\HandTrackers\ArUcoTracker.cs" />
@@ -77,6 +78,7 @@
      <Compile Include="Assets\NatureStarterKit2\Standard Assets\Effects\ImageEffects\Scripts\ScreenSpaceAmbientOcclusion.cs" />
      <Compile Include="Assets\Scripts\Internal\CameraMatProviders\CameraMatProvider.cs" />
      <Compile Include="Assets\ExampleAssets\Scripts\ARFeatheredPlaneMeshVisualizer.cs" />
+     <Compile Include="Assets\Scripts\Experiments\VideoHandPositionEstimator.cs" />
      <Compile Include="Assets\NatureStarterKit2\Standard Assets\Effects\ImageEffects\Scripts\Vortex.cs" />
      <Compile Include="Assets\Scripts\Internal\HandTrackers\ThresholdTracker.cs" />
      <Compile Include="Assets\Scripts\Internal\CameraMatProviders\MobileCameraMatProvider.cs" />

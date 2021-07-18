@@ -103,6 +103,9 @@ public class ArUcoTracker : HandTracker
         Imgproc.cvtColor(rgbaMat, rgbMat, Imgproc.COLOR_RGBA2RGB);
 
         Aruco.detectMarkers(rgbMat, markerDictionary, corners, ids, detectorParameters, new List<Mat>(), camMatrix, distCoeffs);
+        
+        if (drawPreview)
+            Aruco.drawDetectedMarkers(rgbMat, corners, ids, new Scalar(0, 255, 0, 255));
 
         var rvecs = new Mat();
         var tvecs = new Mat();
@@ -126,7 +129,6 @@ public class ArUcoTracker : HandTracker
 
         if (drawPreview)
         {
-            Aruco.drawDetectedMarkers(rgbMat, corners, ids, new Scalar(0, 255, 0, 255));
             Imgproc.cvtColor(rgbMat, rgbaMat, Imgproc.COLOR_RGB2RGBA);
         }
     }

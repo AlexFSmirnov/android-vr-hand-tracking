@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 300;
         DontDestroyOnLoad(transform.gameObject);
     }
 
