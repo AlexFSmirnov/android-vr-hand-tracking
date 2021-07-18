@@ -3,6 +3,7 @@
 /[Tt]emp
 /[Bb]uilds
 /YoloDataset
+/experiments
 
 ./gradle
 

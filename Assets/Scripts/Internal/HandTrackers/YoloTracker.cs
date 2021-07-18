@@ -17,7 +17,7 @@ public class YoloTracker : HandTracker
     private float handZDistance = 0.5f;
 
     private Net yoloNet;
-    private Size yoloInputSize;
+    private Size yoloInputSize = new Size(416, 416);
     private float confidenceThreshold = 0.3f;
     private float nmsThreshold = 0.4f;
 
@@ -34,13 +34,11 @@ public class YoloTracker : HandTracker
     {
         if (tiny)
         {
-            yoloInputSize = new Size(416, 416);
             configFilename = "cross-hands-tiny-prn.weights";
             modelFilename = "cross-hands-tiny-prn.cfg";
         }
         else
         {
-            yoloInputSize = new Size(256, 256);
             configFilename = "cross-hands.weights";
             modelFilename = "cross-hands.cfg";
         }
