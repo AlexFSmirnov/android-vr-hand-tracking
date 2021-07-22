@@ -856,13 +856,13 @@ MonoBehaviour:
   m_text: "Quick descriptions of the tracking methods:\n1. ArUco.           Uses
     ArUco markers from the standard 4x4 dictionary.\r\n2. Threshold.     Uses a simple
     color thresholding algorithm to locate all pixels similar enough to the sampled
-    hand color.\n        Works in HSV and Lab color spaces, requires a color picker.\r\n3.
-    Camshift.      Uses the Camshift algorithm to track the hand movement. Only works
-    with one hand.\n        Works in HSV and Lab color spaces, requires a color picker.\r\n4.
-    OpenPose.    Uses the OpenPose neural network to find the full skeletal mesh
-    of the hand.\r\n5. Yolo3.            Uses the YOLOv3 neural network trained for
-    hand detection.\r\n6. Yolo3Tiny.      Same as Yolo3, but uses a smaller and less
-    accurate network.\r\n"
+    hand color.\n        Works in HSV and L\u03B1\u03B2 color spaces, requires a
+    color picker.\r\n3. Camshift.      Uses the Camshift algorithm to track the hand
+    movement. Only works with one hand.\n        Works in HSV and L\u03B1\u03B2 color
+    spaces, requires a color picker.\r\n4. OpenPose.    Uses the OpenPose neural
+    network to find the full skeletal mesh of the hand.\r\n5. Yolo3.            Uses
+    the YOLOv3 neural network trained for hand detection.\r\n6. Yolo3Tiny.      Same
+    as Yolo3, but uses a smaller and less accurate network.\r\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
