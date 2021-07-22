@@ -134,8 +134,8 @@ public class OpenPoseTracker : HandTracker
             if (points[idFrom] != null && points[idTo] != null)
             {
                 Imgproc.line(rgbMat, points[idFrom], points[idTo], new Scalar(0, 255, 0), 3);
-                Imgproc.ellipse(rgbMat, points[idFrom], new Size(3, 3), 0, 0, 360, new Scalar(0, 0, 255), Core.FILLED);
-                Imgproc.ellipse(rgbMat, points[idTo], new Size(3, 3), 0, 0, 360, new Scalar(0, 0, 255), Core.FILLED);
+                Imgproc.circle(rgbMat, points[idFrom], 3, new Scalar(0, 0, 255), Core.FILLED);
+                Imgproc.circle(rgbMat, points[idTo], 3, new Scalar(0, 0, 255), Core.FILLED);
             }
         }
 
