@@ -22,3 +22,7 @@ The following assets are not essential but required to run the _Main_ scene.
 -   [Plank Textures PBR](https://assetstore.unity.com/packages/2d/textures-materials/wood/plank-textures-pbr-72318) (1.0)
 
 Once the project is set up and all the assets are installed, the application can be run in the Unity Editor. It is worth mentioning that when loading up the project for the first time, Unity can show a warning related to missing packages. It can be ignored as the packages above are indeed missing and need to be added manually.
+
+## Deep dive
+
+The extended description of the process I went through while designing this as well as all the testing and final results can be found in the full text of my Bachelor thesis - [Hand Tracking For Mobile Virtual Reality](./HandTrackingForMobileVR.pdf).
